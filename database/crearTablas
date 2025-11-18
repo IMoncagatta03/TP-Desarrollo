@@ -1,0 +1,30 @@
+
+DROP TABLE IF EXISTS huespedes;
+DROP TABLE IF EXISTS direccion;
+
+CREATE TABLE huespedes (
+    id_huesped SERIAL PRIMARY KEY,
+    
+    nombres VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    email VARCHAR(50),
+    fecha_nacimiento DATE NOT NULL,
+    tipo_documento VARCHAR(20) NOT NULL,
+    posicion_iva VARCHAR(20) NOT NULL,
+    ocupacion VARCHAR(50) NOT NULL,
+    numero_documento VARCHAR(8) NOT NULL,
+    cuit VARCHAR(10),
+    nacionalidad VARCHAR(50) NOT NULL,
+    telefono VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE direccion (
+	id_huesped SERIAL REFERENCES huespedes(id_huesped),
+ 	pais VARCHAR(20) NOT NULL,
+    provincia VARCHAR(20) NOT NULL,
+    localidad VARCHAR(20) NOT NULL,
+    direccion_calle VARCHAR(25) NOT NULL,
+    codigo_postal VARCHAR(10) NOT NULL,
+    direccion_numero VARCHAR(20) NOT NULL,
+    direccion_piso VARCHAR(10)
+);

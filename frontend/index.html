@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CU09 - Dar Alta de Huésped</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>CU09: Dar Alta de Huésped</h2>
+        <form id="form-alta-huesped">
+            <fieldset>
+                <legend>Datos Personales</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombres">Nombres:</label>
+                        <input type="text" id="nombres" name="nombres" required 
+                               placeholder="Nombre" tabindex="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido:</label>
+                        <input type="text" id="apellido" name="apellido" required 
+                               placeholder="Apellido" tabindex="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email (Opcional):</label>
+                        <input type="email" id="email" name="email" 
+                               placeholder="Email" tabindex="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required 
+                               tabindex="4">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoDocumento">Tipo de Documento:</label>
+                        <select id="tipoDocumento" name="tipoDocumento" required tabindex="5">
+                            <option value="DNI">DNI</option>
+                            <option value="LE">LE</option>
+                            <option value="LC">LC</option>
+                            <option value="Pasaporte">Pasaporte</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroDocumento">Número de Documento:</label>
+                        <input type="text" id="numeroDocumento" name="numeroDocumento" required 
+                               placeholder="Número de documento" tabindex="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="nacionalidad">Nacionalidad:</label>
+                        <input type="text" id="nacionalidad" name="nacionalidad" required 
+                               placeholder="Nacionalidad" tabindex="7">
+                    </div>
+                    <div class="form-group">
+                        <label for="ocupacion">Ocupación:</label>
+                        <input type="text" id="ocupacion" name="ocupacion" required 
+                               placeholder="Ocupación" tabindex="8">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Datos Fiscales</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="posicionIva">Posición frente al IVA:</label>
+                        <select id="posicionIva" name="posicionIva" required tabindex="9">
+                            <option value="CONSUMIDOR_FINAL">Consumidor final</option>
+                            <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</option>
+                            <option value="EXENTO">Exento</option>
+                            <option value="MONOTRIBUTISTA">Monotributista</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cuit">CUIT (Opcional):</label>
+                        <input type="text" id="cuit" name="cuit" 
+                               placeholder="CUIT" tabindex="10">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Dirección</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required 
+                               placeholder="Teléfono" tabindex="11">
+                    </div>
+                    <div class="form-group">
+                        <label for="pais">País:</label>
+                        <input type="text" id="pais" name="pais" required 
+                               placeholder="País" tabindex="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="provincia">Provincia:</label>
+                        <input type="text" id="provincia" name="provincia" required 
+                               placeholder="Provincia" tabindex="13">
+                    </div>
+                    <div class="form-group">
+                        <label for="localidad">Localidad:</label>
+                        <input type="text" id="localidad" name="localidad" required 
+                               placeholder="Localidad" tabindex="14">
+                    </div>
+                    <div class="form-group">
+                        <label for="direccionCalle">Calle:</label>
+                        <input type="text" id="direccionCalle" name="direccionCalle" required 
+                               placeholder="Calle" tabindex="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="direccionNumero">Número:</label>
+                        <input type="text" id="direccionNumero" name="direccionNumero" required 
+                               placeholder="Número" tabindex="16">
+                    </div>
+                    <div class="form-group">
+                        <label for="direccionDepartamento">Depto (Opcional):</label>
+                        <input type="text" id="direccionDepartamento" name="direccionDepartamento" 
+                               placeholder="Departamento" tabindex="17">
+                    </div>
+                    <div class="form-group">
+                        <label for="codigoPostal">Código Postal:</label>
+                        <input type="text" id="codigoPostal" name="codigoPostal" required 
+                               placeholder="Código Postal" tabindex="18">
+                    </div>
+                </div>
+            </fieldset>
+            
+            <div class="form-buttons">
+                <button type="button" id="btn-cancelar" class="btn-cancel" 
+                        tabindex="20">CANCELAR</button>
+                <button type="submit" id="btn-siguiente" class="btn-submit" 
+                        tabindex="19">SIGUIENTE (Guardar)</button>
+            </div>
+        </form>
+        
+        <div id="mensaje-error" class="mensaje-error" style="display:none;"></div>
+    </div>
+    
+    <div id="modal-exito" class="modal-overlay" style="display:none;">
+        <div class="modal-contenido">
+            <p id="modal-mensaje">El huésped nombres y apellido ha sido satisfactoriamente cargado al sistema.</p>
+            <p>¿Desea cargar otro?</p>
+            <div class="modal-botones">
+                <button type="button" id="btn-modal-no" class="btn-cancel">No</button>
+                <button type="button" id="btn-modal-si" class="btn-submit">Si</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-advertencia" class="modal-overlay" style="display:none;">
+        <div class="modal-contenido">
+            <p id="modal-advertencia-mensaje">¡CUIDADO! El tipo y número de documento ya existen en el sistema</p>
+            <div class="modal-botones">
+                <button type="button" id="btn-modal-corregir" class="btn-cancel">CORREGIR</button>
+                <button type="button" id="btn-modal-aceptar" class="btn-submit">ACEPTAR IGUALMENTE</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

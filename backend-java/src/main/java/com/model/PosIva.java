@@ -1,0 +1,5 @@
+package com.model;
+
+public enum PosIva {
+    CONSUMIDOR_FINAL, RESPONSABLE_INSCRIPTO, EXENTO, MONOTRIBUTISTA
+}
