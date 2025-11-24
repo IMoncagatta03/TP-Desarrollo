@@ -3,26 +3,16 @@ package com.dto;
 import com.enums.TipoDoc;
 
 public class HuespedDTO {
-    private Long idHuesped;
     private String nombres;
     private String apellido;
     private TipoDoc tipoDocumento;
     private String numeroDocumento;
 
-    public HuespedDTO(Long idHuesped, String nombres, String apellido, TipoDoc tipoDocumento, String numeroDocumento) {
-        this.idHuesped = idHuesped;
+    public HuespedDTO(String nombres, String apellido, TipoDoc tipoDocumento, String numeroDocumento) {
         this.nombres = nombres;
         this.apellido = apellido;
         this.tipoDocumento = tipoDocumento;
         this.numeroDocumento = numeroDocumento;
-    }
-
-    public Long getIdHuesped() {
-        return idHuesped;
-    }
-
-    public void setIdHuesped(Long idHuesped) {
-        this.idHuesped = idHuesped;
     }
 
     public String getNombres() {

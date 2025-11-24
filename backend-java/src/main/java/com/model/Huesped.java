@@ -18,9 +18,10 @@ import jakarta.persistence.*;
 public class Huesped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_huesped")
-    private Long idHuesped;
+    @NotBlank
+    @Pattern(regexp = "^[0-9]+$", message = "Documento inválido")
+    @Column(name = "numero_documento")
+    private String numeroDocumento;
 
     @NotBlank(message = "El apellido no puede estar vacío")
     @Pattern(regexp = "^[a-zA-ZñÑáéíóúÁÉÍÓÚ\\s]+$", message = "Apellido inválido")
@@ -33,11 +34,6 @@ public class Huesped {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_documento")
     private TipoDoc tipoDocumento;
-
-    @NotBlank
-    @Pattern(regexp = "^[0-9]+$", message = "Documento inválido")
-    @Column(name = "numero_documento")
-    private String numeroDocumento;
 
     private String cuit;
 
@@ -63,12 +59,12 @@ public class Huesped {
     @Pattern(regexp = "^[a-zA-ZñÑáéíóúÁÉÍÓÚ\\s]+$", message = "Campo inválido")
     private String nacionalidad;
 
-    public Long getIdHuesped() {
-        return idHuesped;
+    public String getNumeroDocumento() {
+        return numeroDocumento;
     }
 
-    public void setIdHuesped(Long idHuesped) {
-        this.idHuesped = idHuesped;
+    public void setNumeroDocumento(String numeroDocumento) {
+        this.numeroDocumento = numeroDocumento;
     }
 
     public String getApellido() {
@@ -93,14 +89,6 @@ public class Huesped {
 
     public void setTipoDocumento(TipoDoc tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
-    }
-
-    public String getNumeroDocumento() {
-        return numeroDocumento;
-    }
-
-    public void setNumeroDocumento(String numeroDocumento) {
-        this.numeroDocumento = numeroDocumento;
     }
 
     public String getCuit() {

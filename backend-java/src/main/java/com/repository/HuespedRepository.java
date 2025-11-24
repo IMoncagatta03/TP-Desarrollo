@@ -11,7 +11,7 @@ import com.model.Huesped;
 import java.util.List;
 
 @Repository
-public interface HuespedRepository extends JpaRepository<Huesped, Long> {
+public interface HuespedRepository extends JpaRepository<Huesped, String> {
 
        boolean existsByTipoDocumentoAndNumeroDocumento(TipoDoc tipoDocumento, String numeroDocumento);
 

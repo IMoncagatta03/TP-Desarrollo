@@ -1,5 +1,5 @@
 CREATE TABLE huespedes (
-	numero_documento VARCHAR(8) NOT NULL,
+	numero_documento VARCHAR(8) PRIMARY KEY,
     	nombres 	VARCHAR(50) NOT NULL,
     	apellido 	VARCHAR(50) NOT NULL,
     	email 		VARCHAR(50),
@@ -24,12 +24,12 @@ CREATE TABLE direccion (
 );
 
 CREATE TABLE habitacion (
-	numero	VARCHAR(3) NOT NULL PRIMARY KEY
+	numero	VARCHAR(3) NOT NULL PRIMARY KEY,
 	estado 	VARCHAR(15) NOT NULL,
-	tipo	VARCHAR() NOT NULL,
+	tipo	VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE cama (
-	numero_hab	REFERENCES habitacion(numero)
-	tipo	VARCHAR(10)
+	numero_hab	VARCHAR(3) REFERENCES habitacion(numero),
+	tipo		VARCHAR(10)
 );

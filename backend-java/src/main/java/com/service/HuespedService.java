@@ -39,7 +39,7 @@ public class HuespedService {
     public List<com.dto.HuespedDTO> obtenerTodos() {
         List<Huesped> huespedes = huespedRepository.findAll();
         return huespedes.stream()
-                .map(h -> new com.dto.HuespedDTO(h.getIdHuesped(), h.getNombres(), h.getApellido(),
+                .map(h -> new com.dto.HuespedDTO(h.getNombres(), h.getApellido(),
                         h.getTipoDocumento(), h.getNumeroDocumento()))
                 .collect(java.util.stream.Collectors.toList());
     }
@@ -55,7 +55,7 @@ public class HuespedService {
 
         List<Huesped> huespedes = huespedRepository.buscarHuespedes(nombre, apellido, tipoDocumento, numeroDocumento);
         return huespedes.stream()
-                .map(h -> new com.dto.HuespedDTO(h.getIdHuesped(), h.getNombres(), h.getApellido(),
+                .map(h -> new com.dto.HuespedDTO(h.getNombres(), h.getApellido(),
                         h.getTipoDocumento(),
                         h.getNumeroDocumento()))
                 .collect(java.util.stream.Collectors.toList());
