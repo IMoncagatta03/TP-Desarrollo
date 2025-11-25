@@ -35,13 +35,21 @@ CREATE TABLE cama (
 );
 
 CREATE TABLE reserva (
-	fechaDesde DATE,
-	fechaHasta DATE,
-	numHabitacion	VARCHAR(3) NOT NULL,
+	fecha_desde DATE,
+	fecha_hasta DATE,
+	num_habitacion	VARCHAR(3) NOT NULL,
 	nombres 	VARCHAR(50) NOT NULL,
 	apellido 	VARCHAR(50) NOT NULL,
 	telefono	VARCHAR(20) NOT NULL,
-PRIMARY KEY (fechaDesde, fechaHasta, numHabitacion)
+PRIMARY KEY (fecha_desde, fecha_hasta, num_habitacion)
+);
+
+CREATE TABLE estadia (
+	id 		SERIAL PRIMARY KEY,
+	fecha_desde	DATE NOT NULL,
+	fecha_hasta	DATE NOT NULL,
+	num_habitacion	VARCHAR(3) NOT NULL REFERENCES habitacion(numero),
+	estado 		VARCHAR(20)
 );
 
 

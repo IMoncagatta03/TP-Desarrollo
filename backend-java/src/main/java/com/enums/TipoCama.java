@@ -1,6 +1,6 @@
 package com.enums;
 
-public enum TCama {
+public enum TipoCama {
     INDIVIDUAL,
     DOBLE,
     KING

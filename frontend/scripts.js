@@ -326,3 +326,192 @@ btnModalAceptar.addEventListener('click', () => {
     if (datosHuespedTemporal) forzarGuardadoHuesped(datosHuespedTemporal);
     datosHuespedTemporal = null;
 });
+
+// --- LOGICA ESTADO HABITACIONES ---
+
+const btnBuscarEstado = document.getElementById('btn-buscar-estado');
+if (btnBuscarEstado) {
+    btnBuscarEstado.addEventListener('click', buscarEstadoHabitaciones);
+}
+
+// Filtros
+document.querySelectorAll('.filter-type').forEach(cb => {
+    cb.addEventListener('change', aplicarFiltrosEstado);
+});
+document.querySelectorAll('.filter-status').forEach(cb => {
+    cb.addEventListener('change', aplicarFiltrosEstado);
+});
+
+async function buscarEstadoHabitaciones() {
+    const fechaDesdeInput = document.getElementById('estado-fecha-desde');
+    const fechaHastaInput = document.getElementById('estado-fecha-hasta');
+
+    if (!fechaDesdeInput.value || !fechaHastaInput.value) {
+        alert("Por favor seleccione ambas fechas.");
+        return;
+    }
+
+    const fechaDesde = fechaDesdeInput.value;
+    const fechaHasta = fechaHastaInput.value;
+
+    if (fechaDesde > fechaHasta) {
+        alert("La fecha desde no puede ser mayor a la fecha hasta.");
+        return;
+    }
+
+    const url = `http://localhost:8080/habitaciones/estado?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
+
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            renderTablaEstado(data, fechaDesde, fechaHasta);
+        } else {
+            console.error("Error al obtener estados:", response.status);
+            alert("Error al obtener los estados de las habitaciones.");
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        alert("Error de conexión al servidor.");
+    }
+}
+
+function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
+    const thead = document.getElementById('status-table-head');
+    const tbody = document.getElementById('status-table-body');
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="100%">No hay habitaciones cargadas.</td></tr>';
+        return;
+    }
+
+    // Sort rooms by number (optional but good)
+    data.sort((a, b) => a.numero.localeCompare(b.numero));
+
+    // 1. Generate Header (Room IDs)
+    // First column is "Dia"
+    let headerRow = '<tr><th>Dia</th>';
+    data.forEach(hab => {
+        // Add class for room type filtering
+        headerRow += `<th class="col-room" data-tipo="${hab.tipo}">${hab.numero}</th>`;
+    });
+    headerRow += '</tr>';
+    thead.innerHTML = headerRow;
+
+    // 2. Generate Rows (Dates)
+    let current = new Date(fechaDesdeStr + 'T00:00:00'); // Append time to avoid timezone issues
+    const end = new Date(fechaHastaStr + 'T00:00:00');
+
+    // Helper to format date as YYYY-MM-DD for key lookup
+    const formatDateKey = (date) => {
+        return date.toISOString().split('T')[0];
+    };
+
+    // Helper to format date for display
+    const formatDateDisplay = (date) => {
+        return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    while (current <= end) {
+        const dateKey = formatDateKey(current);
+        let rowHtml = `<tr><td>${formatDateDisplay(current)}</td>`;
+
+        data.forEach(hab => {
+            const status = hab.estadosPorFecha[dateKey] || 'LIBRE'; // Default to LIBRE if missing
+            let statusClass = '';
+            let statusText = '';
+
+            switch (status) {
+                case 'LIBRE':
+                    statusClass = 'status-libre';
+                    statusText = 'Libre';
+                    break;
+                case 'OCUPADO':
+                    statusClass = 'status-ocupado';
+                    statusText = 'Ocupada';
+                    break;
+                case 'RESERVADO':
+                    statusClass = 'status-reservado';
+                    statusText = 'Reservada';
+                    break;
+                case 'PAGO_PENDIENTE':
+                    statusClass = 'status-pago-pendiente';
+                    statusText = 'Pendiente de Pago';
+                    break;
+                default:
+                    statusText = status;
+            }
+
+            rowHtml += `<td class="col-room cell-status ${statusClass}" data-tipo="${hab.tipo}" data-status="${status}">${statusText}</td>`;
+        });
+
+        rowHtml += '</tr>';
+        tbody.innerHTML += rowHtml;
+
+        current.setDate(current.getDate() + 1);
+    }
+
+    aplicarFiltrosEstado(); // Apply filters initially
+}
+
+function aplicarFiltrosEstado() {
+    // 1. Room Type Filters (Columns)
+    const checkedTypes = Array.from(document.querySelectorAll('.filter-type:checked')).map(cb => cb.value);
+
+    // Hide/Show columns based on room type
+    // We need to target both headers and cells
+    const allRoomCols = document.querySelectorAll('.col-room');
+    allRoomCols.forEach(col => {
+        const tipo = col.getAttribute('data-tipo');
+        if (checkedTypes.includes(tipo)) {
+            col.style.display = '';
+        } else {
+            col.style.display = 'none';
+        }
+    });
+
+    // 2. Status Filters (Cells content/style)
+    const checkedStatuses = Array.from(document.querySelectorAll('.filter-status:checked')).map(cb => cb.value);
+
+    const allStatusCells = document.querySelectorAll('.cell-status');
+    allStatusCells.forEach(cell => {
+        const status = cell.getAttribute('data-status');
+        // If status is NOT checked, we hide the content/color?
+        // Or we make it look "blank"?
+        // Let's make it transparent/white text if filtered out, or just remove background.
+
+        // However, if I uncheck "Ocupada", I probably don't want to see "Ocupada" cells.
+        // But the cell still exists.
+        // Let's remove the class if filtered out.
+
+        // First reset classes
+        cell.className = 'col-room cell-status'; // Reset base classes
+
+        // Re-add status class only if checked
+        if (checkedStatuses.includes(status)) {
+            let statusClass = '';
+            switch (status) {
+                case 'LIBRE': statusClass = 'status-libre'; break;
+                case 'OCUPADO': statusClass = 'status-ocupado'; break;
+                case 'RESERVADO': statusClass = 'status-reservado'; break;
+                case 'PAGO_PENDIENTE': statusClass = 'status-pago-pendiente'; break;
+            }
+            cell.classList.add(statusClass);
+            cell.style.color = ''; // Reset color
+        } else {
+            // Filtered out
+            cell.style.backgroundColor = '#f0f0f0'; // Grayed out
+            cell.style.color = '#ccc'; // Faded text
+        }
+
+        // Re-apply column visibility (redundant but safe if we reset className)
+        const tipo = cell.getAttribute('data-tipo');
+        if (checkedTypes.includes(tipo)) {
+            cell.style.display = '';
+        } else {
+            cell.style.display = 'none';
+        }
+    });
+}

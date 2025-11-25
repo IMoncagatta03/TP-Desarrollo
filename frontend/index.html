@@ -31,6 +31,11 @@
                         <i class="fas fa-search"></i> Buscar Huésped
                     </a>
                 </li>
+                <li>
+                    <a href="#" class="nav-link" onclick="cambiarVista('estado-habitaciones')">
+                        <i class="fas fa-bed"></i> Estado Habitaciones
+                    </a>
+                </li>
             </ul>
         </nav>
 
@@ -261,6 +266,78 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: MOSTRAR ESTADO HABITACIONES -->
+            <div id="vista-estado-habitaciones" class="vista-seccion" style="display:none;">
+                <div class="container" style="max-width: 1200px;">
+                    <h2>Mostrar Estado Habitaciones</h2>
+
+                    <div class="search-container">
+                        <div class="search-form-column" style="width: 100%;">
+                            <div class="form-grid"
+                                style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
+                                <div class="form-group">
+                                    <label for="estado-fecha-desde">Desde Fecha</label>
+                                    <input type="date" id="estado-fecha-desde">
+                                </div>
+                                <div class="form-group">
+                                    <label for="estado-fecha-hasta">Hasta Fecha</label>
+                                    <input type="date" id="estado-fecha-hasta">
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" id="btn-buscar-estado" class="btn-submit"
+                                        style="background-color: #0056b3;">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-view-container">
+                        <div class="grid-container">
+                            <div class="table-responsive">
+                                <table class="status-table">
+                                    <thead id="status-table-head">
+                                        <!-- JS will fill header -->
+                                    </thead>
+                                    <tbody id="status-table-body">
+                                        <!-- JS will fill body -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="scroll-controls">
+                                <!-- Custom scroll controls if needed, or rely on overflow -->
+                            </div>
+                        </div>
+
+                        <div class="filters-panel">
+                            <h3>Filtros</h3>
+                            <div class="filter-group">
+                                <label><input type="checkbox" class="filter-type" value="INDIVIDUAL_ESTANDAR" checked>
+                                    Individual Estandar</label>
+                                <label><input type="checkbox" class="filter-type" value="DOBLE_ESTANDAR" checked>
+                                    Doble Estandar</label>
+                                <label><input type="checkbox" class="filter-type" value="SUPERIOR_FAMILY_PLAN" checked>
+                                    Superior Family Plan</label>
+                                <label><input type="checkbox" class="filter-type" value="SUITE_DOBLE" checked> Suite
+                                    Doble</label>
+                            </div>
+                            <hr>
+                            <div class="filter-group">
+                                <label><input type="checkbox" class="filter-status" value="LIBRE" checked>
+                                    Libre</label>
+                                <label><input type="checkbox" class="filter-status" value="OCUPADO" checked>
+                                    Ocupada</label>
+                                <label><input type="checkbox" class="filter-status" value="RESERVADO" checked>
+                                    Reservada</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons-container" style="justify-content: center;">
+                        <button type="button" class="btn-cancel" onclick="cambiarVista('alta')">Cancelar</button>
                     </div>
                 </div>
             </div>
