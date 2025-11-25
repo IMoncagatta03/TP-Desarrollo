@@ -24,8 +24,43 @@ public class HuespedService {
         boolean yaExiste = huespedRepository.existsByTipoDocumentoAndNumeroDocumento(
                 huesped.getTipoDocumento(), huesped.getNumeroDocumento());
 
-        if (yaExiste && !force) {
-            throw new Exception("¡CUIDADO! El tipo y número de documento ya existen en el sistema");
+        if (yaExiste) {
+            if (!force) {
+                throw new Exception("¡CUIDADO! El tipo y número de documento ya existen en el sistema");
+            } else {
+                // Si force es true, actualizamos los datos del huésped existente
+                Huesped huespedExistente = huespedRepository.findById(huesped.getNumeroDocumento()).orElse(null);
+
+                if (huespedExistente != null) {
+                    huespedExistente.setApellido(huesped.getApellido());
+                    huespedExistente.setNombres(huesped.getNombres());
+                    huespedExistente.setCuit(huesped.getCuit());
+                    huespedExistente.setPosicionIva(huesped.getPosicionIva());
+                    huespedExistente.setFechaNacimiento(huesped.getFechaNacimiento());
+                    huespedExistente.setTelefono(huesped.getTelefono());
+                    huespedExistente.setEmail(huesped.getEmail());
+                    huespedExistente.setOcupacion(huesped.getOcupacion());
+                    huespedExistente.setNacionalidad(huesped.getNacionalidad());
+
+                    Direccion nuevaDireccion = huesped.getDireccion();
+                    if (nuevaDireccion != null) {
+                        Direccion direccionExistente = huespedExistente.getDireccion();
+                        if (direccionExistente != null) {
+                            direccionExistente.setDireccionCalle(nuevaDireccion.getDireccionCalle());
+                            direccionExistente.setDireccionNumero(nuevaDireccion.getDireccionNumero());
+                            direccionExistente.setDireccionPiso(nuevaDireccion.getDireccionPiso());
+                            direccionExistente.setCodigoPostal(nuevaDireccion.getCodigoPostal());
+                            direccionExistente.setLocalidad(nuevaDireccion.getLocalidad());
+                            direccionExistente.setProvincia(nuevaDireccion.getProvincia());
+                            direccionExistente.setPais(nuevaDireccion.getPais());
+                        } else {
+                            nuevaDireccion.setHuesped(huespedExistente);
+                            huespedExistente.setDireccion(nuevaDireccion);
+                        }
+                    }
+                    return huespedRepository.save(huespedExistente);
+                }
+            }
         }
 
         Direccion direccion = huesped.getDireccion();
