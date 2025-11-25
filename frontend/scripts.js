@@ -460,61 +460,58 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
 }
 
 function aplicarFiltrosEstado() {
-    // 1. Room Type Filters (Columns)
+    // 1. Get Filter Values
     const checkedTypes = Array.from(document.querySelectorAll('.filter-type:checked')).map(cb => cb.value);
+    const checkedStatuses = Array.from(document.querySelectorAll('.filter-status:checked')).map(cb => cb.value);
 
-    // Hide/Show columns based on room type
-    // We need to target both headers and cells
-    const allRoomCols = document.querySelectorAll('.col-room');
-    allRoomCols.forEach(col => {
-        const tipo = col.getAttribute('data-tipo');
-        if (checkedTypes.includes(tipo)) {
-            col.style.display = '';
-        } else {
-            col.style.display = 'none';
+    // 2. Identify Columns (Headers)
+    const roomHeaders = Array.from(document.querySelectorAll('#status-table-head th.col-room'));
+    const tbody = document.getElementById('status-table-body');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    // 3. Determine Visibility per Column
+    // Initialize all to true
+    const colVisibility = new Array(roomHeaders.length).fill(true);
+
+    // 3a. Check Room Type
+    roomHeaders.forEach((th, index) => {
+        const tipo = th.getAttribute('data-tipo');
+        if (!checkedTypes.includes(tipo)) {
+            colVisibility[index] = false;
         }
     });
 
-    // 2. Status Filters (Cells content/style)
-    const checkedStatuses = Array.from(document.querySelectorAll('.filter-status:checked')).map(cb => cb.value);
+    // 3b. Check Status (Strict: If ANY cell in the column has an unchecked status, hide the WHOLE column)
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td.col-room');
+        cells.forEach((cell, index) => {
+            // Optimization: If already hidden, skip
+            if (!colVisibility[index]) return;
 
-    const allStatusCells = document.querySelectorAll('.cell-status');
-    allStatusCells.forEach(cell => {
-        const status = cell.getAttribute('data-status');
-        // If status is NOT checked, we hide the content/color?
-        // Or we make it look "blank"?
-        // Let's make it transparent/white text if filtered out, or just remove background.
-
-        // However, if I uncheck "Ocupada", I probably don't want to see "Ocupada" cells.
-        // But the cell still exists.
-        // Let's remove the class if filtered out.
-
-        // First reset classes
-        cell.className = 'col-room cell-status'; // Reset base classes
-
-        // Re-add status class only if checked
-        if (checkedStatuses.includes(status)) {
-            let statusClass = '';
-            switch (status) {
-                case 'LIBRE': statusClass = 'status-libre'; break;
-                case 'OCUPADO': statusClass = 'status-ocupado'; break;
-                case 'RESERVADO': statusClass = 'status-reservado'; break;
-                case 'PAGO_PENDIENTE': statusClass = 'status-pago-pendiente'; break;
+            const status = cell.getAttribute('data-status');
+            if (!checkedStatuses.includes(status)) {
+                colVisibility[index] = false;
             }
-            cell.classList.add(statusClass);
-            cell.style.color = ''; // Reset color
-        } else {
-            // Filtered out
-            cell.style.backgroundColor = '#f0f0f0'; // Grayed out
-            cell.style.color = '#ccc'; // Faded text
-        }
+        });
+    });
 
-        // Re-apply column visibility (redundant but safe if we reset className)
-        const tipo = cell.getAttribute('data-tipo');
-        if (checkedTypes.includes(tipo)) {
-            cell.style.display = '';
-        } else {
-            cell.style.display = 'none';
-        }
+    // 4. Apply Visibility
+    // Headers
+    roomHeaders.forEach((th, index) => {
+        th.style.display = colVisibility[index] ? '' : 'none';
+    });
+
+    // Cells
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td.col-room');
+        cells.forEach((cell, index) => {
+            cell.style.display = colVisibility[index] ? '' : 'none';
+
+            // Reset styles if visible (in case they were modified by previous logic)
+            if (colVisibility[index]) {
+                cell.style.backgroundColor = '';
+                cell.style.color = '';
+            }
+        });
     });
 }

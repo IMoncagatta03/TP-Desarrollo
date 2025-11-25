@@ -53,6 +53,14 @@ CREATE TABLE estadia (
 );
 
 
+--Estadias
+INSERT INTO estadia
+VALUES (1,'2025-11-23','2025-11-27',102,'VIGENTE');
+
+--Reservas
+INSERT INTO reserva
+VALUES ('2025-11-24','2025-11-28',105,'Juan','Perez','3498777777');
+
 
 -- 1. INDIVIDUAL ESTÁNDAR (10 Habitaciones)
 -- Configuración: 1 cama INDIVIDUAL
