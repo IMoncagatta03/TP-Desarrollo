@@ -246,9 +246,6 @@ function cambiarVista(vista) {
     if (linkActivo) {
         linkActivo.classList.add('active');
     }
-    if (vista === 'buscar') {
-        buscarHuespedes();
-    }
 }
 
 const btnBuscarAccion = document.getElementById('btn-buscar-accion');
