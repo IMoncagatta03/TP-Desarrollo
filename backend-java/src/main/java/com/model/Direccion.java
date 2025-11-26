@@ -17,12 +17,12 @@ import jakarta.validation.constraints.Pattern;
 public class Direccion {
 
     @Id
-    @Column(name = "numero_documento")
-    private String numeroDocumento;
+    @Column(name = "id_huesped")
+    private String idHuesped;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "numero_documento")
+    @JoinColumn(name = "id_huesped")
     @JsonBackReference
     private Huesped huesped;
 
@@ -53,12 +53,12 @@ public class Direccion {
 
     // --- Getters y Setters ---
 
-    public String getNumeroDocumento() {
-        return numeroDocumento;
+    public String getIdHuesped() {
+        return idHuesped;
     }
 
-    public void setNumeroDocumento(String numeroDocumento) {
-        this.numeroDocumento = numeroDocumento;
+    public void setIdHuesped(String idHuesped) {
+        this.idHuesped = idHuesped;
     }
 
     public Huesped getHuesped() {
