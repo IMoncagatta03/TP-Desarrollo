@@ -430,10 +430,9 @@ if (formBusqueda) {
 const btnCancelarBusqueda = document.getElementById('btn-cancelar-busqueda');
 if (btnCancelarBusqueda) {
     btnCancelarBusqueda.addEventListener('click', () => {
-        if (confirm('¿Cancelar búsqueda y limpiar datos?')) {
-            document.getElementById('form-busqueda').reset();
-            document.getElementById('tabla-huespedes-body').innerHTML = '';
-        }
+        document.getElementById('form-busqueda').reset();
+        document.getElementById('tabla-huespedes-body').innerHTML = '';
+        cambiarVista('inicio');
     });
 }
 
@@ -580,30 +579,145 @@ if (btnBuscarEstado) {
     btnBuscarEstado.addEventListener('click', buscarEstadoHabitaciones);
 }
 
+// Botón Limpiar y Salir (Estado Habitaciones)
+const btnLimpiarSalirEstado = document.getElementById('btn-limpiar-salir-estado');
+if (btnLimpiarSalirEstado) {
+    btnLimpiarSalirEstado.addEventListener('click', () => {
+        // 1. Limpiar Fechas
+        const fechaDesdeInput = document.getElementById('estado-fecha-desde');
+        const fechaHastaInput = document.getElementById('estado-fecha-hasta');
+        if (fechaDesdeInput) fechaDesdeInput.value = '';
+        if (fechaHastaInput) fechaHastaInput.value = '';
+
+        // 2. Limpiar Errores
+        const errorDesde = document.getElementById('error-estado-fecha-desde');
+        const errorHasta = document.getElementById('error-estado-fecha-hasta');
+        if (errorDesde) { errorDesde.style.display = 'none'; errorDesde.textContent = ''; }
+        if (errorHasta) { errorHasta.style.display = 'none'; errorHasta.textContent = ''; }
+        if (fechaDesdeInput) fechaDesdeInput.classList.remove('input-error');
+        if (fechaHastaInput) fechaHastaInput.classList.remove('input-error');
+
+        // 3. Limpiar Grilla
+        document.getElementById('status-table-head').innerHTML = '';
+        document.getElementById('status-table-body').innerHTML = '';
+
+        // 4. Resetear Filtros (Todos marcados por defecto)
+        document.querySelectorAll('.filter-type, .filter-status').forEach(cb => cb.checked = true);
+
+        // 5. Volver a Inicio
+        cambiarVista('inicio');
+    });
+}
+
+// Enter Key Support for Date Inputs
+const fechaDesdeInput = document.getElementById('estado-fecha-desde');
+const fechaHastaInput = document.getElementById('estado-fecha-hasta');
+
+if (fechaDesdeInput) {
+    fechaDesdeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') buscarEstadoHabitaciones();
+    });
+}
+if (fechaHastaInput) {
+    fechaHastaInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') buscarEstadoHabitaciones();
+    });
+}
+
 // Filtros
+const handleFilterKeydown = (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        e.target.checked = !e.target.checked;
+        aplicarFiltrosEstado();
+    }
+};
+
 document.querySelectorAll('.filter-type').forEach(cb => {
     cb.addEventListener('change', aplicarFiltrosEstado);
+    cb.addEventListener('keydown', handleFilterKeydown);
 });
 document.querySelectorAll('.filter-status').forEach(cb => {
     cb.addEventListener('change', aplicarFiltrosEstado);
+    cb.addEventListener('keydown', handleFilterKeydown);
 });
 
 async function buscarEstadoHabitaciones() {
     const fechaDesdeInput = document.getElementById('estado-fecha-desde');
     const fechaHastaInput = document.getElementById('estado-fecha-hasta');
+    const errorDesde = document.getElementById('error-estado-fecha-desde');
+    const errorHasta = document.getElementById('error-estado-fecha-hasta');
 
-    if (!fechaDesdeInput.value || !fechaHastaInput.value) {
-        alert("Por favor seleccione ambas fechas.");
+    // Limpiar errores previos
+    if (errorDesde) { errorDesde.style.display = 'none'; errorDesde.textContent = ''; }
+    if (errorHasta) { errorHasta.style.display = 'none'; errorHasta.textContent = ''; }
+    if (fechaDesdeInput) fechaDesdeInput.classList.remove('input-error');
+    if (fechaHastaInput) fechaHastaInput.classList.remove('input-error');
+
+    // 3.A Validación Fecha Desde
+    if (!fechaDesdeInput.value) {
+        if (errorDesde) {
+            errorDesde.textContent = "Por favor ingrese una fecha en 'Desde fecha'.";
+            errorDesde.style.display = 'block';
+        }
+        fechaDesdeInput.classList.add('input-error');
+        fechaDesdeInput.focus();
+        return;
+    }
+
+    // 4.A Validación Fecha Hasta
+    if (!fechaHastaInput.value) {
+        if (errorHasta) {
+            errorHasta.textContent = "Por favor ingrese una fecha en 'Hasta fecha'.";
+            errorHasta.style.display = 'block';
+        }
+        fechaHastaInput.classList.add('input-error');
+        fechaHastaInput.focus();
         return;
     }
 
     const fechaDesde = fechaDesdeInput.value;
     const fechaHasta = fechaHastaInput.value;
 
-    if (fechaDesde > fechaHasta) {
-        alert("La fecha desde no puede ser mayor a la fecha hasta.");
+    // Validación de Año (2020 - 2030)
+    const yearDesde = parseInt(fechaDesde.split('-')[0]);
+    const yearHasta = parseInt(fechaHasta.split('-')[0]);
+
+    if (yearDesde < 2020 || yearDesde > 2030) {
+        if (errorDesde) {
+            errorDesde.textContent = "El año debe estar entre 2020 y 2030.";
+            errorDesde.style.display = 'block';
+        }
+        fechaDesdeInput.classList.add('input-error');
+        fechaDesdeInput.focus();
         return;
     }
+
+    if (yearHasta < 2020 || yearHasta > 2030) {
+        if (errorHasta) {
+            errorHasta.textContent = "El año debe estar entre 2020 y 2030.";
+            errorHasta.style.display = 'block';
+        }
+        fechaHastaInput.classList.add('input-error');
+        fechaHastaInput.focus();
+        return;
+    }
+
+    if (fechaDesde > fechaHasta) {
+        if (errorDesde) {
+            errorDesde.textContent = "La fecha 'Desde' no puede ser mayor a la fecha 'Hasta'.";
+            errorDesde.style.display = 'block';
+        }
+        fechaDesdeInput.classList.add('input-error');
+        fechaDesdeInput.focus();
+        return;
+    }
+
+    // Mostrar "Cargando..." y limpiar tabla
+    const tbody = document.getElementById('status-table-body');
+    const thead = document.getElementById('status-table-head');
+    thead.innerHTML = '';
+    tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center; padding: 20px; font-weight: bold;">Cargando estado de habitaciones...</td></tr>';
 
     const url = `http://localhost:8080/habitaciones/estado?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
 

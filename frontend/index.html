@@ -87,8 +87,17 @@
             <!-- CONTENIDO PRINCIPAL (A la derecha) -->
             <div class="main-content">
 
+                <!-- VISTA: INICIO -->
+                <div id="vista-inicio" class="vista-seccion" style="display: block;">
+                    <div class="container" style="text-align: center; margin-top: 50px;">
+                        <h1>Bienvenido al Sistema de Gestión Hotelera</h1>
+                        <p>Seleccione una opción del menú lateral para comenzar.</p>
+                        <i class="fas fa-hotel fa-5x" style="color: #ccc; margin-top: 20px;"></i>
+                    </div>
+                </div>
+
                 <!-- VISTA: ALTA DE HUÉSPED -->
-                <div id="vista-alta" class="vista-seccion">
+                <div id="vista-alta" class="vista-seccion" style="display: none;">
                     <div class="container">
                         <h2>Dar Alta de Huésped</h2>
                         <form id="form-alta-huesped" novalidate>
@@ -226,7 +235,7 @@
                             <div class="form-buttons">
                                 <button type="button" id="btn-cancelar" class="btn-cancel"
                                     tabindex="20">CANCELAR</button>
-                                <button type="submit" class="btn-submit" tabindex="19">GUARDAR</button>
+                                <button type="submit" class="btn-submit" tabindex="19">SIGUIENTE</button>
                             </div>
                         </form>
                     </div>
@@ -403,11 +412,17 @@
                                     style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
                                     <div class="form-group">
                                         <label for="estado-fecha-desde">Desde Fecha</label>
-                                        <input type="date" id="estado-fecha-desde">
+                                        <input type="date" id="estado-fecha-desde" name="estado-fecha-desde"
+                                            min="2020-01-01" max="2030-12-31">
+                                        <small id="error-estado-fecha-desde" class="error-text"
+                                            style="display:none; color: red;"></small>
                                     </div>
                                     <div class="form-group">
                                         <label for="estado-fecha-hasta">Hasta Fecha</label>
-                                        <input type="date" id="estado-fecha-hasta">
+                                        <input type="date" id="estado-fecha-hasta" name="estado-fecha-hasta"
+                                            min="2020-01-01" max="2030-12-31">
+                                        <small id="error-estado-fecha-hasta" class="error-text"
+                                            style="display:none; color: red;"></small>
                                     </div>
                                     <div class="form-group">
                                         <button type="button" id="btn-buscar-estado" class="btn-submit"
@@ -461,7 +476,8 @@
                         </div>
 
                         <div class="action-buttons-container" style="justify-content: center;">
-                            <button type="button" class="btn-cancel" onclick="cambiarVista('alta')">Cancelar</button>
+                            <button type="button" id="btn-limpiar-salir-estado" class="btn-submit"
+                                style="background-color: #0056b3;">Limpiar y Salir</button>
                         </div>
                     </div>
                 </div>
