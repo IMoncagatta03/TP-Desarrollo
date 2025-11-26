@@ -582,9 +582,10 @@ button {
     cursor: pointer;
 }
 
-.status-libre {
+
+
+#vista-reservar .status-libre {
     cursor: pointer;
-    /* Indicar que es clickeable */
 }
 
 .status-libre:hover {
