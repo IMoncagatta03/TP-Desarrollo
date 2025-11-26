@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- mODIFICACION -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,339 +12,487 @@
 
 <body>
 
-    <!-- CONTENEDOR PRINCIPAL (Layout Flexible) -->
-    <div class="app-layout">
-
-        <!-- BARRA LATERAL (SIDEBAR) -->
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <i class="fas fa-hotel"></i> Gestión Hotelera
+    <!-- VISTA: LOGIN -->
+    <div id="vista-login" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-hotel fa-3x"></i>
+                <h2>Bienvenido</h2>
+                <p>Sistema de Gestión Hotelera</p>
             </div>
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="#" class="nav-link active" onclick="cambiarVista('alta')">
-                        <i class="fas fa-user-plus"></i> Dar Alta Huésped
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link" onclick="cambiarVista('buscar')">
-                        <i class="fas fa-search"></i> Buscar Huésped
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link" onclick="cambiarVista('estado-habitaciones')">
-                        <i class="fas fa-bed"></i> Estado Habitaciones
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- CONTENIDO PRINCIPAL (A la derecha) -->
-        <div class="main-content">
-
-            <!-- VISTA: ALTA DE HUÉSPED -->
-            <div id="vista-alta" class="vista-seccion">
-                <div class="container">
-                    <h2>Dar Alta de Huésped</h2>
-                    <form id="form-alta-huesped">
-                        <fieldset>
-                            <legend>Datos Personales</legend>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="nombres">Nombres:</label>
-                                    <input type="text" id="nombres" name="nombres" required placeholder="Nombre"
-                                        tabindex="1" maxlength="50">
-                                    <small id="error-nombres" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="apellido">Apellido:</label>
-                                    <input type="text" id="apellido" name="apellido" required placeholder="Apellido"
-                                        tabindex="2" maxlength="50">
-                                    <small id="error-apellido" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email (Opcional):</label>
-                                    <input type="email" id="email" name="email" placeholder="Email" tabindex="3"
-                                        maxlength="50">
-                                    <small id="error-email" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="fechaNacimiento">Fecha de Nacimiento:</label>
-                                    <input type="date" id="fechaNacimiento" name="fechaNacimiento" required
-                                        tabindex="4">
-                                    <small id="error-fechaNacimiento" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tipoDocumento">Tipo de Documento:</label>
-                                    <select id="tipoDocumento" name="tipoDocumento" required tabindex="5">
-                                        <option value="DNI">DNI</option>
-                                        <option value="LE">LE</option>
-                                        <option value="LC">LC</option>
-                                        <option value="Pasaporte">Pasaporte</option>
-                                        <option value="Otro">Otro</option>
-                                    </select>
-                                    <small id="error-tipoDocumento" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="numeroDocumento">Número de Documento:</label>
-                                    <input type="text" id="numeroDocumento" name="numeroDocumento" required
-                                        placeholder="Número de documento" tabindex="6" maxlength="8">
-                                    <small id="error-numeroDocumento" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nacionalidad">Nacionalidad:</label>
-                                    <input type="text" id="nacionalidad" name="nacionalidad" required
-                                        placeholder="Nacionalidad" tabindex="7" maxlength="50">
-                                    <small id="error-nacionalidad" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ocupacion">Ocupación:</label>
-                                    <input type="text" id="ocupacion" name="ocupacion" required placeholder="Ocupación"
-                                        tabindex="8" maxlength="50">
-                                    <small id="error-ocupacion" class="error-text"></small>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend>Datos Fiscales</legend>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="posicionIva">Posición frente al IVA:</label>
-                                    <select id="posicionIva" name="posicionIva" required tabindex="9">
-                                        <option value="CONSUMIDOR_FINAL">Consumidor final</option>
-                                        <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</option>
-                                        <option value="EXENTO">Exento</option>
-                                        <option value="MONOTRIBUTISTA">Monotributista</option>
-                                    </select>
-                                    <small id="error-posicionIva" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="cuit">CUIT (Opcional):</label>
-                                    <input type="text" id="cuit" name="cuit" placeholder="CUIT" tabindex="10"
-                                        maxlength="10">
-                                    <small id="error-cuit" class="error-text"></small>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend>Dirección</legend>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="telefono">Teléfono:</label>
-                                    <input type="tel" id="telefono" name="telefono" required placeholder="Teléfono"
-                                        tabindex="11" maxlength="20">
-                                    <small id="error-telefono" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="pais">País:</label>
-                                    <input type="text" id="pais" name="pais" required placeholder="País" tabindex="12"
-                                        maxlength="20">
-                                    <small id="error-pais" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="provincia">Provincia:</label>
-                                    <input type="text" id="provincia" name="provincia" required placeholder="Provincia"
-                                        maxlength="20" tabindex="13">
-                                    <small id="error-provincia" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="localidad">Localidad:</label>
-                                    <input type="text" id="localidad" name="localidad" required placeholder="Localidad"
-                                        maxlength="20" tabindex="14">
-                                    <small id="error-localidad" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="direccionCalle">Calle:</label>
-                                    <input type="text" id="direccionCalle" name="direccionCalle" required maxlength="25"
-                                        placeholder="Calle" tabindex="15">
-                                    <small id="error-direccionCalle" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="direccionNumero">Número:</label>
-                                    <input type="text" id="direccionNumero" name="direccionNumero" required
-                                        maxlength="20" placeholder="Número" tabindex="16">
-                                    <small id="error-direccionNumero" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="direccionDepartamento">Depto (Opcional):</label>
-                                    <input type="text" id="direccionDepartamento" name="direccionDepartamento"
-                                        placeholder="Departamento" tabindex="17" maxlength="20">
-                                    <small id="error-direccionDepartamento" class="error-text"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="codigoPostal">Código Postal:</label>
-                                    <input type="text" id="codigoPostal" name="codigoPostal" required maxlength="10"
-                                        placeholder="Código Postal" tabindex="18">
-                                    <small id="error-codigoPostal" class="error-text"></small>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <div class="form-buttons">
-                            <button type="button" id="btn-cancelar" class="btn-cancel" tabindex="20">CANCELAR</button>
-                            <button type="submit" id="btn-siguiente" class="btn-submit" tabindex="19">SIGUIENTE
-                                (Guardar)</button>
-                        </div>
-                    </form>
-
-                    <div id="mensaje-error" class="mensaje-error" style="display:none;"></div>
-                </div>
-            </div>
-
-            <!-- VISTA: BUSCAR HUÉSPED -->
-            <div id="vista-buscar" class="vista-seccion" style="display:none;">
-                <div class="container" style="max-width: 1200px;">
-                    <!-- Hacemos el contenedor más ancho para que quepa todo -->
-                    <h2>Buscar huésped</h2>
-
-                    <div class="search-container">
-
-                        <!-- COLUMNA IZQUIERDA: INPUTS (Estilo idéntico al Alta) -->
-                        <div class="search-form-column">
-                            <h3>Ingrese los datos</h3>
-                            <form id="form-busqueda">
-
-                                <div class="form-group">
-                                    <label for="busqueda-nombre">Nombre</label>
-                                    <input type="text" id="busqueda-nombre" placeholder="Nombre">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="busqueda-apellido">Apellido</label>
-                                    <input type="text" id="busqueda-apellido" placeholder="Apellido">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="busqueda-tipoDoc">Tipo de documento</label>
-                                    <select id="busqueda-tipoDoc">
-                                        <option value="">Todos</option>
-                                        <option value="DNI">DNI</option>
-                                        <option value="LE">LE</option>
-                                        <option value="LC">LC</option>
-                                        <option value="Pasaporte">Pasaporte</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="busqueda-numDoc">Número de documento</label>
-                                    <input type="text" id="busqueda-numDoc" placeholder="Número de documento">
-                                </div>
-
-                                <button type="button" id="btn-buscar-accion" class="btn-submit btn-block">
-                                    BUSCAR
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- COLUMNA DERECHA: TABLA -->
-                        <div class="search-results-column">
-                            <h3>Resultado/s</h3>
-
-                            <div class="table-responsive">
-                                <table class="results-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 50px; text-align: center;">Seleccionar</th>
-                                            <th>Nombre/s</th>
-                                            <th>Apellido</th>
-                                            <th>Tipo Documento</th>
-                                            <th>Nro. Documento</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabla-huespedes-body">
-                                        <!-- JS llenará esto -->
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="action-buttons-container">
-                                <button type="button" class="btn-cancel">CANCELAR</button>
-                                <button type="button" class="btn-submit"
-                                    style="background-color: #0056b3;">SIGUIENTE</button>
-                            </div>
-                        </div>
-
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="login-usuario">Usuario</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="login-usuario" placeholder="Ingrese su usuario" required autofocus>
                     </div>
                 </div>
-            </div>
-
-            <!-- VISTA: MOSTRAR ESTADO HABITACIONES -->
-            <div id="vista-estado-habitaciones" class="vista-seccion" style="display:none;">
-                <div class="container" style="max-width: 1200px;">
-                    <h2>Mostrar Estado Habitaciones</h2>
-
-                    <div class="search-container">
-                        <div class="search-form-column" style="width: 100%;">
-                            <div class="form-grid"
-                                style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
-                                <div class="form-group">
-                                    <label for="estado-fecha-desde">Desde Fecha</label>
-                                    <input type="date" id="estado-fecha-desde">
-                                </div>
-                                <div class="form-group">
-                                    <label for="estado-fecha-hasta">Hasta Fecha</label>
-                                    <input type="date" id="estado-fecha-hasta">
-                                </div>
-                                <div class="form-group">
-                                    <button type="button" id="btn-buscar-estado" class="btn-submit"
-                                        style="background-color: #0056b3;">Buscar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="status-view-container">
-                        <div class="grid-container">
-                            <div class="table-responsive">
-                                <table class="status-table">
-                                    <thead id="status-table-head">
-                                        <!-- JS will fill header -->
-                                    </thead>
-                                    <tbody id="status-table-body">
-                                        <!-- JS will fill body -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="scroll-controls">
-                                <!-- Custom scroll controls if needed, or rely on overflow -->
-                            </div>
-                        </div>
-
-                        <div class="filters-panel">
-                            <h3>Filtros</h3>
-                            <div class="filter-group">
-                                <label><input type="checkbox" class="filter-type" value="INDIVIDUAL_ESTANDAR" checked>
-                                    Individual Estandar</label>
-                                <label><input type="checkbox" class="filter-type" value="DOBLE_ESTANDAR" checked>
-                                    Doble Estandar</label>
-                                <label><input type="checkbox" class="filter-type" value="SUPERIOR_FAMILY_PLAN" checked>
-                                    Superior Family Plan</label>
-                                <label><input type="checkbox" class="filter-type" value="SUITE_DOBLE" checked> Suite
-                                    Doble</label>
-                            </div>
-                            <hr>
-                            <div class="filter-group">
-                                <label><input type="checkbox" class="filter-status" value="LIBRE" checked>
-                                    Libre</label>
-                                <label><input type="checkbox" class="filter-status" value="OCUPADO" checked>
-                                    Ocupada</label>
-                                <label><input type="checkbox" class="filter-status" value="RESERVADO" checked>
-                                    Reservada</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons-container" style="justify-content: center;">
-                        <button type="button" class="btn-cancel" onclick="cambiarVista('alta')">Cancelar</button>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="Ingrese su contraseña" required>
                     </div>
                 </div>
+                <button type="submit" class="btn-submit btn-block btn-login">INGRESAR</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL (Layout Flexible) - OCULTO INICIALMENTE -->
+    <div id="app-principal" style="display: none; height: 100%;">
+        <div class="app-layout">
+
+            <!-- BARRA LATERAL (SIDEBAR) -->
+            <nav class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-hotel"></i> Gestión Hotelera
+                </div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="nav-link" onclick="cambiarVista('inicio')">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link active" onclick="cambiarVista('alta')">
+                            <i class="fas fa-user-plus"></i> Dar Alta Huésped
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="cambiarVista('buscar')">
+                            <i class="fas fa-search"></i> Buscar Huésped
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="cambiarVista('estado-habitaciones')">
+                            <i class="fas fa-bed"></i> Estado Habitaciones
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="cambiarVista('modificar')">
+                            <i class="fas fa-user-edit"></i> Modificar Huésped
+                        </a>
+                    </li>
+                    <!-- Botón Salir -->
+                    <li style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <a href="#" class="nav-link" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Salir
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- CONTENIDO PRINCIPAL (A la derecha) -->
+            <div class="main-content">
+
+                <!-- VISTA: ALTA DE HUÉSPED -->
+                <div id="vista-alta" class="vista-seccion">
+                    <div class="container">
+                        <h2>Dar Alta de Huésped</h2>
+                        <form id="form-alta-huesped" novalidate>
+                            <fieldset>
+                                <legend>Datos Personales</legend>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="nombres">Nombres:</label>
+                                        <input type="text" id="nombres" name="nombres" required placeholder="Nombre"
+                                            tabindex="1" maxlength="50">
+                                        <small id="error-nombres" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="apellido">Apellido:</label>
+                                        <input type="text" id="apellido" name="apellido" required placeholder="Apellido"
+                                            tabindex="2" maxlength="50">
+                                        <small id="error-apellido" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email (Opcional):</label>
+                                        <input type="email" id="email" name="email" placeholder="Email" tabindex="3"
+                                            maxlength="50">
+                                        <small id="error-email" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required
+                                            tabindex="4">
+                                        <small id="error-fechaNacimiento" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tipoDocumento">Tipo de Documento:</label>
+                                        <select id="tipoDocumento" name="tipoDocumento" required tabindex="5">
+                                            <option value="DNI">DNI</option>
+                                            <option value="LE">LE</option>
+                                            <option value="LC">LC</option>
+                                            <option value="Pasaporte">Pasaporte</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                        <small id="error-tipoDocumento" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="numeroDocumento">Número de Documento:</label>
+                                        <input type="text" id="numeroDocumento" name="numeroDocumento" required
+                                            placeholder="Número de documento" tabindex="6" maxlength="8">
+                                        <small id="error-numeroDocumento" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nacionalidad">Nacionalidad:</label>
+                                        <input type="text" id="nacionalidad" name="nacionalidad" required
+                                            placeholder="Nacionalidad" tabindex="7" maxlength="50">
+                                        <small id="error-nacionalidad" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ocupacion">Ocupación:</label>
+                                        <input type="text" id="ocupacion" name="ocupacion" required
+                                            placeholder="Ocupación" tabindex="8" maxlength="50">
+                                        <small id="error-ocupacion" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="posicionIva">Posición frente al IVA:</label>
+                                        <select id="posicionIva" name="posicionIva" required tabindex="9">
+                                            <option value="CONSUMIDOR_FINAL">Consumidor Final</option>
+                                            <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</option>
+                                            <option value="MONOTRIBUTISTA">Monotributista</option>
+                                            <option value="EXENTO">Exento</option>
+                                        </select>
+                                        <small id="error-posicionIva" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cuit">CUIT (Opcional):</label>
+                                        <input type="text" id="cuit" name="cuit" placeholder="CUIT" tabindex="10"
+                                            maxlength="13">
+                                        <small id="error-cuit" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="telefono">Teléfono:</label>
+                                        <input type="text" id="telefono" name="telefono" required placeholder="Teléfono"
+                                            tabindex="11" maxlength="20">
+                                        <small id="error-telefono" class="error-text"></small>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>Dirección</legend>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="direccionCalle">Calle:</label>
+                                        <input type="text" id="direccionCalle" name="direccionCalle" required
+                                            placeholder="Calle" tabindex="12" maxlength="50">
+                                        <small id="error-direccionCalle" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="direccionNumero">Número:</label>
+                                        <input type="text" id="direccionNumero" name="direccionNumero" required
+                                            placeholder="Número" tabindex="13" maxlength="10">
+                                        <small id="error-direccionNumero" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="direccionPiso">Piso/Depto (Opcional):</label>
+                                        <input type="text" id="direccionPiso" name="direccionPiso"
+                                            placeholder="Piso/Depto" tabindex="14" maxlength="10">
+                                        <small id="error-direccionPiso" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="codigoPostal">Código Postal:</label>
+                                        <input type="text" id="codigoPostal" name="codigoPostal" required
+                                            placeholder="CP" tabindex="15" maxlength="10">
+                                        <small id="error-codigoPostal" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="localidad">Localidad:</label>
+                                        <input type="text" id="localidad" name="localidad" required
+                                            placeholder="Localidad" tabindex="16" maxlength="50">
+                                        <small id="error-localidad" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="provincia">Provincia:</label>
+                                        <input type="text" id="provincia" name="provincia" required
+                                            placeholder="Provincia" tabindex="17" maxlength="50">
+                                        <small id="error-provincia" class="error-text"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pais">País:</label>
+                                        <input type="text" id="pais" name="pais" required placeholder="País"
+                                            tabindex="18" maxlength="50">
+                                        <small id="error-pais" class="error-text"></small>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <div class="mensaje-error" id="mensaje-error" style="display: none;"></div>
+
+                            <div class="form-buttons">
+                                <button type="button" id="btn-cancelar" class="btn-cancel"
+                                    tabindex="20">CANCELAR</button>
+                                <button type="submit" class="btn-submit" tabindex="19">GUARDAR</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- VISTA: BUSCAR HUÉSPED -->
+                <div id="vista-buscar" class="vista-seccion" style="display:none;">
+                    <div class="container" style="max-width: 1200px;">
+                        <!-- Hacemos el contenedor más ancho para que quepa todo -->
+                        <h2>Buscar huésped</h2>
+
+                        <div class="search-container">
+
+                            <!-- COLUMNA IZQUIERDA: INPUTS (Estilo idéntico al Alta) -->
+                            <div class="search-form-column">
+                                <h3>Ingrese los datos</h3>
+                                <form id="form-busqueda">
+
+                                    <div class="form-group">
+                                        <label for="busqueda-nombre">Nombre</label>
+                                        <input type="text" id="busqueda-nombre" placeholder="Nombre">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="busqueda-apellido">Apellido</label>
+                                        <input type="text" id="busqueda-apellido" placeholder="Apellido">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="busqueda-tipoDoc">Tipo de documento</label>
+                                        <select id="busqueda-tipoDoc">
+                                            <option value="">Todos</option>
+                                            <option value="DNI">DNI</option>
+                                            <option value="LE">LE</option>
+                                            <option value="LC">LC</option>
+                                            <option value="Pasaporte">Pasaporte</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="busqueda-numDoc">Número de documento</label>
+                                        <input type="text" id="busqueda-numDoc" placeholder="Número de documento">
+                                    </div>
+
+                                    <button type="submit" id="btn-buscar-accion" class="btn-submit btn-block">
+                                        BUSCAR
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- COLUMNA DERECHA: TABLA -->
+                            <div class="search-results-column">
+                                <h3>Resultado/s</h3>
+
+                                <div class="table-responsive">
+                                    <table class="results-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px; text-align: center;">Seleccionar</th>
+                                                <th onclick="ordenarTabla(1)" style="cursor: pointer;">Nombre/s <i
+                                                        class="fas fa-sort"></i></th>
+                                                <th onclick="ordenarTabla(2)" style="cursor: pointer;">Apellido <i
+                                                        class="fas fa-sort"></i></th>
+                                                <th onclick="ordenarTabla(3)" style="cursor: pointer;">Tipo Documento <i
+                                                        class="fas fa-sort"></i></th>
+                                                <th onclick="ordenarTabla(4)" style="cursor: pointer;">Nro. Documento <i
+                                                        class="fas fa-sort"></i></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-huespedes-body">
+                                            <!-- JS llenará esto -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="action-buttons-container">
+                                    <button type="button" id="btn-cancelar-busqueda"
+                                        class="btn-cancel">CANCELAR</button>
+                                    <button type="button" id="btn-siguiente-busqueda" class="btn-submit"
+                                        style="background-color: #0056b3;">SIGUIENTE</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISTA: MODIFICAR HUÉSPED (Clon visual de Alta) -->
+                <div id="vista-modificar" class="vista-seccion" style="display:none;">
+                    <div class="container">
+                        <h2>Modificar Huésped</h2>
+                        <form id="form-modificar-huesped">
+                            <fieldset>
+                                <legend>Datos Personales</legend>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="mod-nombres">Nombres:</label>
+                                        <input type="text" id="mod-nombres" name="nombres" required placeholder="Nombre"
+                                            maxlength="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-apellido">Apellido:</label>
+                                        <input type="text" id="mod-apellido" name="apellido" required
+                                            placeholder="Apellido" maxlength="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-email">Email (Opcional):</label>
+                                        <input type="email" id="mod-email" name="email" placeholder="Email"
+                                            maxlength="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-fechaNacimiento">Fecha de Nacimiento:</label>
+                                        <input type="date" id="mod-fechaNacimiento" name="fechaNacimiento" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-tipoDocumento">Tipo de Documento:</label>
+                                        <select id="mod-tipoDocumento" name="tipoDocumento" required>
+                                            <option value="DNI">DNI</option>
+                                            <option value="LE">LE</option>
+                                            <option value="LC">LC</option>
+                                            <option value="Pasaporte">Pasaporte</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-numeroDocumento">Número de Documento:</label>
+                                        <input type="text" id="mod-numeroDocumento" name="numeroDocumento" required
+                                            placeholder="Número de documento" maxlength="8">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-nacionalidad">Nacionalidad:</label>
+                                        <input type="text" id="mod-nacionalidad" name="nacionalidad" required
+                                            placeholder="Nacionalidad" maxlength="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-ocupacion">Ocupación:</label>
+                                        <input type="text" id="mod-ocupacion" name="ocupacion" required
+                                            placeholder="Ocupación" maxlength="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-posicionIva">Posición frente al IVA:</label>
+                                        <select id="mod-posicionIva" name="posicionIva" required>
+                                            <option value="CONSUMIDOR_FINAL">Consumidor Final</option>
+                                            <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</option>
+                                            <option value="MONOTRIBUTISTA">Monotributista</option>
+                                            <option value="EXENTO">Exento</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-cuit">CUIT (Opcional):</label>
+                                        <input type="text" id="mod-cuit" name="cuit" placeholder="CUIT" maxlength="13">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mod-telefono">Teléfono:</label>
+                                        <input type="text" id="mod-telefono" name="telefono" required
+                                            placeholder="Teléfono" maxlength="20">
+                                    </div>
+                                </div>
+                            </fieldset>
+
+
+                        </form>
+                    </div>
+                </div>
+
+                <!-- VISTA: ESTADO HABITACIONES -->
+                <div id="vista-estado-habitaciones" class="vista-seccion" style="display:none;">
+                    <div class="container" style="max-width: 1200px;">
+                        <h2>Mostrar Estado Habitaciones</h2>
+
+                        <div class="search-container">
+                            <div class="search-form-column" style="width: 100%;">
+                                <div class="form-grid"
+                                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
+                                    <div class="form-group">
+                                        <label for="estado-fecha-desde">Desde Fecha</label>
+                                        <input type="date" id="estado-fecha-desde">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="estado-fecha-hasta">Hasta Fecha</label>
+                                        <input type="date" id="estado-fecha-hasta">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" id="btn-buscar-estado" class="btn-submit"
+                                            style="background-color: #0056b3;">Buscar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-view-container">
+                            <div class="grid-container">
+                                <div class="table-responsive">
+                                    <table class="status-table">
+                                        <thead id="status-table-head">
+                                            <!-- JS will fill header -->
+                                        </thead>
+                                        <tbody id="status-table-body">
+                                            <!-- JS will fill body -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="scroll-controls">
+                                    <!-- Custom scroll controls if needed, or rely on overflow -->
+                                </div>
+                            </div>
+
+                            <div class="filters-panel">
+                                <h3>Filtros</h3>
+                                <div class="filter-group">
+                                    <label><input type="checkbox" class="filter-type" value="INDIVIDUAL_ESTANDAR"
+                                            checked>
+                                        Individual Estandar</label>
+                                    <label><input type="checkbox" class="filter-type" value="DOBLE_ESTANDAR" checked>
+                                        Doble Estandar</label>
+                                    <label><input type="checkbox" class="filter-type" value="SUPERIOR_FAMILY_PLAN"
+                                            checked>
+                                        Superior Family Plan</label>
+                                    <label><input type="checkbox" class="filter-type" value="SUITE_DOBLE" checked> Suite
+                                        Doble</label>
+                                </div>
+                                <hr>
+                                <div class="filter-group">
+                                    <label><input type="checkbox" class="filter-status" value="LIBRE" checked>
+                                        Libre</label>
+                                    <label><input type="checkbox" class="filter-status" value="OCUPADO" checked>
+                                        Ocupada</label>
+                                    <label><input type="checkbox" class="filter-status" value="RESERVADO" checked>
+                                        Reservada</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons-container" style="justify-content: center;">
+                            <button type="button" class="btn-cancel" onclick="cambiarVista('alta')">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISTA: INICIO (Main View) -->
+                <div id="vista-inicio" class="vista-seccion"
+                    style="display:none; text-align: center; padding-top: 50px;">
+                    <i class="fas fa-hotel fa-5x" style="color: #2c3e50; margin-bottom: 20px;"></i>
+                    <h1 style="color: #2c3e50;">GESTIÓN HOTELERA</h1>
+                    <p style="font-size: 1.2em; color: #7f8c8d;">Seleccione una opción del menú para comenzar.</p>
+                </div>
+
+
+
             </div>
         </div>
     </div>
 
-    <!-- MODALES (Fuera del layout principal para que floten sobre todo) -->
+    <!-- MODALES -->
+    <!-- ... (otros modales) ... -->
+
+    <!-- MODAL CANCELAR ALTA -->
+    <div id="modal-cancelar-alta" class="modal-overlay" style="display:none;">
+        <div class="modal-contenido">
+            <p>¿Desea cancelar el alta del huésped?</p>
+            <div class="modal-botones">
+                <button type="button" id="btn-modal-cancelar-no" class="btn-cancel">No</button>
+                <button type="button" id="btn-modal-cancelar-si" class="btn-submit">Si</button>
+            </div>
+        </div>
+    </div>
     <div id="modal-exito" class="modal-overlay" style="display:none;">
         <div class="modal-contenido">
             <p id="modal-mensaje"></p>

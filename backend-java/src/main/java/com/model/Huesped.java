@@ -19,7 +19,7 @@ public class Huesped {
 
     @Id
     @NotBlank
-    @Pattern(regexp = "^[0-9]+$", message = "Documento inválido")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Documento inválido")
     @Column(name = "numero_documento")
     private String numeroDocumento;
 

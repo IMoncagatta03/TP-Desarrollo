@@ -12,6 +12,51 @@ const modalAdvertenciaMensaje = document.getElementById('modal-advertencia-mensa
 const btnModalCorregir = document.getElementById('btn-modal-corregir');
 const btnModalAceptar = document.getElementById('btn-modal-aceptar');
 
+// --- LOGIN LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const vistaLogin = document.getElementById('vista-login');
+    const appPrincipal = document.getElementById('app-principal');
+    const formLogin = document.getElementById('form-login');
+    const modalErrorLogin = document.getElementById('modal-error-login');
+    const btnCerrarErrorLogin = document.getElementById('btn-cerrar-error-login');
+    const inputUsuario = document.getElementById('login-usuario');
+    const inputPassword = document.getElementById('login-password');
+
+    // Focus inicial
+    if (inputUsuario) inputUsuario.focus();
+
+    if (formLogin) {
+        formLogin.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const usuario = inputUsuario.value.trim(); // Permitir espacios si es necesario, pero trim es standard
+            const password = inputPassword.value;
+
+            // Credenciales Hardcodeadas: admin / root
+            if (usuario === 'admin' && password === 'root') {
+                // Login Exitoso
+                vistaLogin.style.display = 'none';
+                appPrincipal.style.display = 'block';
+                // Inicializar vista por defecto (Inicio)
+                cambiarVista('inicio');
+            } else {
+                // Login Fallido
+                alert("Usuario o contraseña incorrectos");
+                inputUsuario.value = '';
+                inputPassword.value = '';
+                inputUsuario.focus();
+            }
+        });
+    }
+});
+
+function logout() {
+    if (confirm('¿Está seguro que desea salir?')) {
+        location.reload(); // Recargar página vuelve al login
+    }
+}
+
+// --- END LOGIN LOGIC ---
+
 const API_URL = 'http://localhost:8080/api/huespedes';
 let datosHuespedTemporal = null;
 
@@ -73,15 +118,34 @@ function validarInputs(formElement, reglas) {
 
     limpiarErrores(); // Limpiamos antes de validar
 
+    // 1. Validar campos obligatorios (required)
+    const inputs = formElement.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        if (input.hasAttribute('required') && !input.value.trim()) {
+            mostrarErrorCampo(input.name, 'Este campo es obligatorio.');
+            esValido = false;
+            if (!primerError) primerError = input;
+        }
+    });
+
+    // 1.5 Validar CUIT si es Responsable Inscripto
+    const posIva = formElement.querySelector('#posicionIva');
+    const cuit = formElement.querySelector('#cuit');
+    if (posIva && posIva.value === 'RESPONSABLE_INSCRIPTO' && cuit && !cuit.value.trim()) {
+        mostrarErrorCampo('cuit', 'El CUIT es obligatorio para Responsable Inscripto.');
+        esValido = false;
+        if (!primerError) primerError = cuit;
+    }
+
+    // 2. Validar reglas específicas (regex)
     for (const [nameCampo, regla] of Object.entries(reglas)) {
         const input = formElement.querySelector(`[name="${nameCampo}"]`);
         if (input) {
             const valor = input.value.trim();
 
+            // Solo validamos regex si tiene valor (si está vacío y es required, ya saltó el error arriba)
             if (valor.length > 0 && !regla.regex.test(valor)) {
-                // Mostramos el error usando la misma función
                 mostrarErrorCampo(nameCampo, regla.msg);
-
                 esValido = false;
                 if (!primerError) primerError = input;
             }
@@ -199,7 +263,7 @@ async function forzarGuardadoHuesped(huespedData) {
 }
 
 function mostrarModalExito(h) {
-    modalMensaje.textContent = `Huésped ${h.nombres} ${h.apellido} guardado exitosamente.`;
+    modalMensaje.textContent = `El huésped ${h.nombres} ${h.apellido} ha sido satisfactoriamente cargado al sistema.`;
     modalExito.style.display = 'flex';
 }
 function mostrarModalAdvertencia(msg) {
@@ -217,11 +281,20 @@ function ocultarPaneles() {
 }
 
 btnCancelar.addEventListener('click', () => {
-    if (confirm('¿Cancelar alta?')) {
-        form.reset();
-        limpiarErrores();
-        ocultarPaneles();
-    }
+    document.getElementById('modal-cancelar-alta').style.display = 'flex';
+});
+
+// Lógica Modal Cancelar Alta
+document.getElementById('btn-modal-cancelar-no').addEventListener('click', () => {
+    document.getElementById('modal-cancelar-alta').style.display = 'none';
+});
+
+document.getElementById('btn-modal-cancelar-si').addEventListener('click', () => {
+    document.getElementById('modal-cancelar-alta').style.display = 'none';
+    form.reset();
+    limpiarErrores();
+    ocultarPaneles();
+    cambiarVista('inicio');
 });
 function cambiarVista(vista) {
     const secciones = document.querySelectorAll('.vista-seccion');
@@ -248,23 +321,141 @@ function cambiarVista(vista) {
     }
 }
 
-const btnBuscarAccion = document.getElementById('btn-buscar-accion');
-if (btnBuscarAccion) {
-    btnBuscarAccion.addEventListener('click', buscarHuespedes);
+// Listener del botón eliminado, ahora se maneja con el submit del formulario
+
+// Lógica del botón SIGUIENTE en Búsqueda
+const btnSiguienteBusqueda = document.getElementById('btn-siguiente-busqueda');
+if (btnSiguienteBusqueda) {
+    btnSiguienteBusqueda.addEventListener('click', () => {
+        // 1. Buscar si hay algún checkbox seleccionado
+        const checkboxSeleccionado = document.querySelector('#tabla-huespedes-body input[type="checkbox"]:checked');
+
+        if (checkboxSeleccionado) {
+            // CASO 1: Hay selección -> Ir a Modificar (CU10)
+
+            // Intentamos obtener datos de la fila para pre-llenar (UX)
+            const fila = checkboxSeleccionado.closest('tr');
+            const celdas = fila.querySelectorAll('td');
+            // Indices: 0=Checkbox, 1=Nombre, 2=Apellido, 3=TipoDoc, 4=NumDoc
+
+            const nombre = celdas[1].textContent;
+            const apellido = celdas[2].textContent;
+            const tipoDoc = celdas[3].textContent;
+            const numDoc = celdas[4].textContent;
+
+            cambiarVista('modificar');
+
+            // Pre-llenar formulario de modificación
+            document.getElementById('mod-nombres').value = nombre;
+            document.getElementById('mod-apellido').value = apellido;
+            document.getElementById('mod-tipoDocumento').value = tipoDoc;
+            document.getElementById('mod-numeroDocumento').value = numDoc;
+
+        } else {
+            // CASO 2: NO hay selección -> Ir a Alta (CU11)
+            irAAltaConDatos();
+        }
+    });
 }
 
 // Listener para buscar con Enter en los campos de búsqueda
+// --- REQUERIMIENTOS ESPECIALES ---
+
+// 1. Forzar Mayúsculas en Inputs de Texto (Excluyendo Login)
+document.addEventListener('input', (e) => {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+        // Excluir inputs del login
+        if (e.target.id === 'login-usuario' || e.target.id === 'login-password') return;
+
+        const start = e.target.selectionStart;
+        const end = e.target.selectionEnd;
+        e.target.value = e.target.value.toUpperCase();
+        e.target.setSelectionRange(start, end);
+    }
+});
+
+// 2. Ordenamiento de Tabla
+let ordenAscendente = true;
+function ordenarTabla(n) {
+    const table = document.querySelector(".results-table");
+    const tbody = document.getElementById("tabla-huespedes-body");
+    let rows, switching, i, x, y, shouldSwitch;
+    switching = true;
+
+    // Invertir orden si es la misma columna, sino resetear a ascendente
+    // (Simplificación: alternamos siempre por ahora, idealmente trackear por columna)
+    ordenAscendente = !ordenAscendente;
+
+    while (switching) {
+        switching = false;
+        rows = tbody.rows;
+
+        for (i = 0; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+
+            let xVal = x.textContent || x.innerText;
+            let yVal = y.textContent || y.innerText;
+
+            if (ordenAscendente) {
+                if (xVal.toLowerCase() > yVal.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else {
+                if (xVal.toLowerCase() < yVal.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
+}
+
+// 3. Manejo de Búsqueda (Submit Form)
 const formBusqueda = document.getElementById('form-busqueda');
 if (formBusqueda) {
-    const inputs = formBusqueda.querySelectorAll('input, select');
-    inputs.forEach(input => {
-        input.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                buscarHuespedes();
+    formBusqueda.addEventListener('submit', (e) => {
+        e.preventDefault(); // Evitar recarga
+        buscarHuespedes();
+    });
+}
+
+// 4. Botón Cancelar Búsqueda
+const btnCancelarBusqueda = document.getElementById('btn-cancelar-busqueda');
+if (btnCancelarBusqueda) {
+    btnCancelarBusqueda.addEventListener('click', () => {
+        if (confirm('¿Cancelar búsqueda y limpiar datos?')) {
+            document.getElementById('form-busqueda').reset();
+            document.getElementById('tabla-huespedes-body').innerHTML = '';
+        }
+    });
+}
+
+// Función para comportamiento de "Radio Button Deseleccionable"
+function seleccionarUnico(checkboxActual) {
+    if (checkboxActual.checked) {
+        // Si se marcó este, desmarcar todos los demás
+        const todos = document.querySelectorAll('.select-huesped');
+        todos.forEach(cb => {
+            if (cb !== checkboxActual) {
+                cb.checked = false;
             }
         });
-    });
+    }
+}
+
+function seleccionarConEnter(event, checkbox) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        checkbox.checked = !checkbox.checked;
+        seleccionarUnico(checkbox);
+    }
 }
 
 async function buscarHuespedes() {
@@ -293,14 +484,26 @@ async function buscarHuespedes() {
             tbody.innerHTML = '';
 
             if (listaHuespedes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No se encontraron resultados</td></tr>';
+                // MODIFICACION: Botón para ir a dar de alta
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center;">
+                            <p>No se encontraron resultados.</p>
+                            <button class="btn-submit" onclick="irAAltaConDatos()" style="margin-top: 10px;">
+                                <i class="fas fa-user-plus"></i> Dar de Alta
+                            </button>
+                        </td>
+                    </tr>`;
                 return;
             }
 
             listaHuespedes.forEach(h => {
                 const fila = document.createElement('tr');
+                // MODIFICACION: Checkbox con lógica de exclusión mutua (Radio behavior but toggleable)
                 fila.innerHTML = `
-                    <td style="text-align:center;"><input type="checkbox" value="${h.idHuesped}"></td>
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="select-huesped" value="${h.idHuesped}" onchange="seleccionarUnico(this)" onkeydown="seleccionarConEnter(event, this)">
+                    </td>
                     <td>${h.nombres}</td>
                     <td>${h.apellido}</td>
                     <td>${h.tipoDocumento}</td>
@@ -318,9 +521,52 @@ async function buscarHuespedes() {
     }
 }
 
-btnModalSi.addEventListener('click', () => { modalExito.style.display = 'none'; form.reset(); limpiarErrores(); });
-btnModalNo.addEventListener('click', () => { modalExito.style.display = 'none'; });
-btnModalCorregir.addEventListener('click', () => { modalAdvertencia.style.display = 'none'; datosHuespedTemporal = null; });
+function irAAltaConDatos() {
+    // 1. Obtener datos de la búsqueda
+    const nombre = document.getElementById('busqueda-nombre').value.trim();
+    const apellido = document.getElementById('busqueda-apellido').value.trim();
+    const tipoDoc = document.getElementById('busqueda-tipoDoc').value;
+    const numDoc = document.getElementById('busqueda-numDoc').value.trim();
+
+    // 2. Cambiar a la vista de Alta
+    cambiarVista('alta');
+
+    // 3. Pre-llenar el formulario
+    if (nombre) document.getElementById('nombres').value = nombre;
+    if (apellido) document.getElementById('apellido').value = apellido;
+    if (tipoDoc) document.getElementById('tipoDocumento').value = tipoDoc;
+    if (numDoc) document.getElementById('numeroDocumento').value = numDoc;
+}
+
+btnModalSi.addEventListener('click', () => {
+    modalExito.style.display = 'none';
+    form.reset();
+    limpiarErrores();
+    ocultarPaneles();
+    // Se mantiene en la vista actual (Alta)
+});
+
+btnModalNo.addEventListener('click', () => {
+    modalExito.style.display = 'none';
+    form.reset();
+    limpiarErrores();
+    ocultarPaneles();
+    cambiarVista('inicio');
+});
+btnModalCorregir.addEventListener('click', () => {
+    modalAdvertencia.style.display = 'none';
+    datosHuespedTemporal = null;
+
+    // Highlight fields
+    const tipoDocInput = document.getElementById('tipoDocumento');
+    const numDocInput = document.getElementById('numeroDocumento');
+
+    if (tipoDocInput) tipoDocInput.classList.add('input-error');
+    if (numDocInput) numDocInput.classList.add('input-error');
+
+    // Focus
+    if (tipoDocInput) tipoDocInput.focus();
+});
 btnModalAceptar.addEventListener('click', () => {
     modalAdvertencia.style.display = 'none';
     if (datosHuespedTemporal) forzarGuardadoHuesped(datosHuespedTemporal);

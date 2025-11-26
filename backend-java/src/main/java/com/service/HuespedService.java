@@ -21,8 +21,8 @@ public class HuespedService {
     public Huesped crearHuesped(Huesped huesped, boolean force) throws Exception {
 
         // Flujo Alternativo 2.B: Verificar si el documento ya existe
-        boolean yaExiste = huespedRepository.existsByTipoDocumentoAndNumeroDocumento(
-                huesped.getTipoDocumento(), huesped.getNumeroDocumento());
+        // Flujo Alternativo 2.B: Verificar si el documento ya existe (PK)
+        boolean yaExiste = huespedRepository.existsById(huesped.getNumeroDocumento());
 
         if (yaExiste) {
             if (!force) {

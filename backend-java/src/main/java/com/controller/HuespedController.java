@@ -20,14 +20,16 @@ public class HuespedController {
     private HuespedService huespedService;
 
     @PostMapping
-    // Si la validación falla, no entra al método, sino que salta al
-    // ManejadorGlobalExcepciones.
     public ResponseEntity<?> darAltaHuesped(@Valid @RequestBody Huesped huesped,
             @RequestParam(required = false) boolean force) {
         try {
+            // Aquí delegamos el trabajo sucio al Service
             Huesped nuevoHuesped = huespedService.crearHuesped(huesped, force);
+            // Si todo sale bien, devolvemos un 201 CREATED y el huesped guardado
             return new ResponseEntity<>(nuevoHuesped, HttpStatus.CREATED);
         } catch (Exception e) {
+            e.printStackTrace(); // Log error for debugging
+            // Si algo falla (ej: huesped duplicado), devolvemos error
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }
