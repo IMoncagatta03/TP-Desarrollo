@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface EstadiaRepository extends JpaRepository<Estadia, Long> {
+public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
 
     @Query("SELECT e FROM Estadia e WHERE e.fechaDesde <= :fechaHasta AND e.fechaHasta >= :fechaDesde")
     List<Estadia> findEstadiasEnRango(@Param("fechaDesde") LocalDate fechaDesde,

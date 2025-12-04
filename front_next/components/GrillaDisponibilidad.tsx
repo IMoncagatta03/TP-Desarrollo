@@ -99,13 +99,23 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
     };
 
     // Logica de filtrado
-    const filteredRooms = habitaciones.filter(h => tipos[h.tipo as keyof typeof tipos]);
+    const filteredRooms = habitaciones.filter(h => {
+        if (!tipos[h.tipo as keyof typeof tipos]) return false;
+
+        // Si algun estado en el rango esta desactivado, se oculta la columna
+        for (const date of dates) {
+            const dateKey = date.toISOString().split('T')[0];
+            const status = h.estadosPorFecha[dateKey] || 'LIBRE';
+            if (!estados[status as keyof typeof estados]) return false;
+        }
+        return true;
+    });
 
     return (
         <div className="container mx-auto p-5 h-full flex flex-col max-w-[1200px]">
             <h2 className="text-[#0056b3] text-2xl font-bold mb-6 text-center">{title}</h2>
 
-            {/* Search Bar */}
+            {/* Barra de busqueda */}
             <form onSubmit={handleSearch} className="flex gap-4 items-end mb-6 bg-white p-4 rounded shadow-sm">
                 <div className="form-group flex-1">
                     <label htmlFor="estado-fecha-desde">Desde Fecha</label>
@@ -137,7 +147,7 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
             {error && <p className="text-red-500 font-bold text-center mb-4">{error}</p>}
 
             <div className="flex gap-5 flex-1 overflow-hidden">
-                {/* Grid */}
+                {/* Grilla */}
                 <div className="flex-1 border border-gray-300 overflow-auto bg-white">
                     <table className="w-full border-collapse">
                         <thead>
@@ -164,26 +174,22 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
                                         <td className="sticky left-0 z-10 bg-[#f9f9f9] border border-[#ccc] p-2 font-bold text-center">{dateDisplay}</td>
                                         {filteredRooms.map(hab => {
                                             const status = hab.estadosPorFecha[dateKey] || 'LIBRE';
-                                            const isVisible = estados[status as keyof typeof estados];
 
-                                            // Determine styles
+                                            // Determinar estilo celda
                                             let cellClass = 'bg-gray-100 text-gray-400';
-                                            if (isVisible) {
-                                                // If parent provides custom style, use it, otherwise use default
-                                                if (getCellStyle) {
-                                                    cellClass = getCellStyle(hab.numero, dateKey, status);
-                                                } else {
-                                                    cellClass = getStatusClass(status);
-                                                }
+                                            if (getCellStyle) {
+                                                cellClass = getCellStyle(hab.numero, dateKey, status);
+                                            } else {
+                                                cellClass = getStatusClass(status);
                                             }
 
                                             return (
                                                 <td
                                                     key={`${hab.numero}-${dateKey}`}
-                                                    className={`border border-[#ccc] p-2 text-center ${cellClass} ${onCellClick && isVisible ? 'cursor-pointer' : ''}`}
-                                                    onClick={() => isVisible && onCellClick && onCellClick(hab.numero, dateKey, status, hab.tipo)}
+                                                    className={`border border-[#ccc] p-2 text-center ${cellClass} ${onCellClick ? 'cursor-pointer' : ''}`}
+                                                    onClick={() => onCellClick && onCellClick(hab.numero, dateKey, status, hab.tipo)}
                                                 >
-                                                    {isVisible ? (status === 'LIBRE' ? 'Libre' : (status === 'OCUPADO' ? 'Ocupada' : 'Reservada')) : '-'}
+                                                    {status === 'LIBRE' ? 'Libre' : (status === 'OCUPADO' ? 'Ocupada' : 'Reservada')}
                                                 </td>
                                             );
                                         })}

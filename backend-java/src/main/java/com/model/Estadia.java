@@ -10,7 +10,15 @@ public class Estadia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = "id_huesped", referencedColumnName = "numero_documento")
+    private Huesped huesped;
+
+    @OneToOne
+    @JoinColumn(name = "id_reserva", referencedColumnName = "id")
+    private Reserva reserva;
 
     @Column(name = "fecha_desde")
     private LocalDate fechaDesde;
@@ -29,12 +37,28 @@ public class Estadia {
     public Estadia() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Huesped getHuesped() {
+        return huesped;
+    }
+
+    public void setHuesped(Huesped huesped) {
+        this.huesped = huesped;
+    }
+
+    public Reserva getReserva() {
+        return reserva;
+    }
+
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
     }
 
     public LocalDate getFechaDesde() {

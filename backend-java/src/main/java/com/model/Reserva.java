@@ -5,18 +5,18 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "reserva")
-@IdClass(ReservaId.class)
 public class Reserva {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @Column(name = "fecha_desde")
     private LocalDate fechaDesde;
 
-    @Id
     @Column(name = "fecha_hasta")
     private LocalDate fechaHasta;
 
-    @Id
     @ManyToOne
     @JoinColumn(name = "num_habitacion", referencedColumnName = "numero")
     private Habitacion habitacion;
@@ -41,6 +41,14 @@ public class Reserva {
         this.nombres = nombres;
         this.apellido = apellido;
         this.telefono = telefono;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public LocalDate getFechaDesde() {

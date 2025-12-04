@@ -1,66 +1,136 @@
 CREATE TABLE huespedes (
-	numero_documento VARCHAR(8) PRIMARY KEY,
-    	nombres 	VARCHAR(50) NOT NULL,
-    	apellido 	VARCHAR(50) NOT NULL,
-    	email 		VARCHAR(50),
-    	fecha_nacimiento DATE NOT NULL,
-    	tipo_documento 	VARCHAR(20) NOT NULL,
-    	posicion_iva 	VARCHAR(25) NOT NULL,
-    	ocupacion 	VARCHAR(50) NOT NULL,
-    	cuit 		VARCHAR(10),
-    	nacionalidad 	VARCHAR(50) NOT NULL,
-    	telefono 	VARCHAR(20) NOT NULL
+    numero_documento VARCHAR(8) PRIMARY KEY,
+    nombres          VARCHAR(50) NOT NULL,
+    apellido         VARCHAR(50) NOT NULL,
+    email            VARCHAR(50),
+    fecha_nacimiento DATE NOT NULL,
+    tipo_documento   VARCHAR(20) NOT NULL,
+    posicion_iva     VARCHAR(25) NOT NULL,
+    ocupacion        VARCHAR(50) NOT NULL,
+    cuit             VARCHAR(10),
+    nacionalidad     VARCHAR(50) NOT NULL,
+    telefono         VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE direccion (
-	id_huesped 	VARCHAR(8) REFERENCES huespedes(numero_documento),
- 	pais 		VARCHAR(20) NOT NULL,
-    	provincia 	VARCHAR(20) NOT NULL,
-    	localidad 	VARCHAR(20) NOT NULL,
-    	direccion_calle VARCHAR(25) NOT NULL,
-    	codigo_postal 	VARCHAR(10) NOT NULL,
-    	direccion_numero VARCHAR(20) NOT NULL,
-    	direccion_piso 	VARCHAR(10)
+    id              SERIAL PRIMARY KEY,
+    id_huesped      VARCHAR(8) UNIQUE REFERENCES huespedes(numero_documento),
+    pais            VARCHAR(20) NOT NULL,
+    provincia       VARCHAR(20) NOT NULL,
+    localidad       VARCHAR(20) NOT NULL,
+    direccion_calle VARCHAR(25) NOT NULL,
+    codigo_postal   VARCHAR(10) NOT NULL,
+    direccion_numero VARCHAR(20) NOT NULL,
+    direccion_piso  VARCHAR(10)
 );
 
 CREATE TABLE habitacion (
-	numero	VARCHAR(3) NOT NULL PRIMARY KEY,
-	estado 	VARCHAR(15) NOT NULL,
-	tipo	VARCHAR(20) NOT NULL
+    numero VARCHAR(3) NOT NULL PRIMARY KEY,
+    estado VARCHAR(15) NOT NULL,
+    tipo   VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE cama (
-	numero_hab	VARCHAR(3) REFERENCES habitacion(numero),
-	tipo		VARCHAR(10) NOT NULL
+    id          SERIAL PRIMARY KEY,
+    numero_hab  VARCHAR(3) REFERENCES habitacion(numero),
+    tipo        VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE reserva (
-	fecha_desde DATE,
-	fecha_hasta DATE,
-	num_habitacion	VARCHAR(3) NOT NULL,
-	nombres 	VARCHAR(50) NOT NULL,
-	apellido 	VARCHAR(50) NOT NULL,
-	telefono	VARCHAR(20) NOT NULL,
-PRIMARY KEY (fecha_desde, fecha_hasta, num_habitacion)
+    id             SERIAL PRIMARY KEY,
+    fecha_desde    DATE,
+    fecha_hasta    DATE,
+    num_habitacion VARCHAR(3) NOT NULL REFERENCES habitacion(numero),
+    nombres        VARCHAR(50) NOT NULL,
+    apellido       VARCHAR(50) NOT NULL,
+    telefono       VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE estadia (
-	id 		SERIAL PRIMARY KEY,
-	fecha_desde	DATE NOT NULL,
-	fecha_hasta	DATE NOT NULL,
-	num_habitacion	VARCHAR(3) NOT NULL REFERENCES habitacion(numero),
-	estado 		VARCHAR(20)
+    id             SERIAL PRIMARY KEY,
+    id_huesped     VARCHAR(8) REFERENCES huespedes(numero_documento),
+    id_reserva     INTEGER UNIQUE REFERENCES reserva(id), -- Relación 1 a 1 opcional
+    fecha_desde    DATE NOT NULL,
+    fecha_hasta    DATE NOT NULL,
+    num_habitacion VARCHAR(3) NOT NULL REFERENCES habitacion(numero),
+    estado         VARCHAR(20)
 );
 
+CREATE TABLE consumo (
+    id         SERIAL PRIMARY KEY,
+    id_estadia INTEGER REFERENCES estadia(id),
+    nombre     VARCHAR(50) NOT NULL,
+    precio     FLOAT NOT NULL,
+    cantidad   INTEGER NOT NULL
+);
 
---Estadias
-INSERT INTO estadia
-VALUES (1,'2025-11-23','2025-11-27',102,'VIGENTE');
+CREATE TABLE responsable_de_pago (
+    id              SERIAL PRIMARY KEY,
+    tipo_responsable VARCHAR(20) NOT NULL -- 'FISICA' o 'JURIDICA'
+);
 
---Reservas
-INSERT INTO reserva
-VALUES ('2025-11-24','2025-11-28',105,'Juan','Perez','3498777777');
+CREATE TABLE persona_fisica (
+    id_responsable INTEGER PRIMARY KEY REFERENCES responsable_de_pago(id),
+    numero_documento VARCHAR(8) UNIQUE NOT NULL REFERENCES huespedes(numero_documento) 
+);
 
+CREATE TABLE persona_juridica (
+    id_responsable INTEGER PRIMARY KEY UNIQUE REFERENCES responsable_de_pago(id),
+    razon_social   VARCHAR(100) NOT NULL,
+    id_direccion   INTEGER UNIQUE NOT NULL REFERENCES direccion(id),
+    cuit           VARCHAR(11) NOT NULL
+);
+
+CREATE TABLE factura (
+    id                  SERIAL PRIMARY KEY,
+    tipo_factura        CHAR(1) NOT NULL, 
+    estado_factura      VARCHAR(20) NOT NULL,
+    monto_total         FLOAT NOT NULL,
+    id_estadia          INTEGER REFERENCES estadia(id),
+    id_responsable_pago INTEGER REFERENCES responsable_de_pago(id)
+);
+
+CREATE TABLE nota_credito (
+    id            SERIAL PRIMARY KEY,
+    numero_nota   VARCHAR(20) NOT NULL,
+    importe_total FLOAT NOT NULL,
+    id_factura    INTEGER UNIQUE REFERENCES factura(id)
+);
+
+CREATE TABLE metodo_de_pago (
+    id          SERIAL PRIMARY KEY,
+    tipo_metodo VARCHAR(20) NOT NULL -- 'EFECTIVO', 'TARJETA', 'CHEQUE'
+);
+
+CREATE TABLE efectivo (
+    id_metodo   INTEGER PRIMARY KEY REFERENCES metodo_de_pago(id),
+    moneda      VARCHAR(10) DEFAULT 'ARS'
+);
+
+CREATE TABLE cheque (
+    id_metodo   INTEGER PRIMARY KEY REFERENCES metodo_de_pago(id),
+    nro_cheque  VARCHAR(50) NOT NULL,
+    banco       VARCHAR(50) NOT NULL,
+    fecha_cobro DATE
+);
+
+CREATE TABLE tarjeta (
+    id_metodo     INTEGER PRIMARY KEY REFERENCES metodo_de_pago(id),
+    nro_tarjeta   VARCHAR(20) NOT NULL,
+    titular       VARCHAR(50) NOT NULL,
+    csv           VARCHAR(4) NOT NULL,
+    vencimiento   VARCHAR(5) NOT NULL, -- MM/YY
+    tipo_tarjeta  VARCHAR(10) NOT NULL, -- 'CREDITO' o 'DEBITO'
+    cuotas        INTEGER DEFAULT 1
+);
+
+CREATE TABLE pago (
+    id              SERIAL PRIMARY KEY,
+    id_factura      INTEGER REFERENCES factura(id),
+    id_metodo_pago  INTEGER REFERENCES metodo_de_pago(id),
+    importe         FLOAT NOT NULL,
+    fecha_pago      DATE DEFAULT CURRENT_DATE
+);
 
 -- 1. INDIVIDUAL ESTÁNDAR (10 Habitaciones)
 -- Configuración: 1 cama INDIVIDUAL
@@ -193,7 +263,6 @@ INSERT INTO cama (numero_hab, tipo) VALUES
 
 -- 5. SUITE DOBLE (2 Habitaciones)
 -- Habitaciones 501 - 502
--- Nota: No se especificó cama, se asume 1 KING por ser Suite.
 
 INSERT INTO habitacion (numero, estado, tipo) VALUES
 ('501', 'LIBRE', 'SUITE_DOBLE'),
