@@ -20,7 +20,7 @@ export default function Sidebar() {
 
     const logout = () => {
         if (confirm('¿Está seguro que desea salir?')) {
-            localStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('isLoggedIn');
             window.location.href = '/login';
         }
     };

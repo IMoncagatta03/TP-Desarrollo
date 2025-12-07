@@ -16,7 +16,7 @@ export default function LoginForm() {
 
         if (usuario === 'admin' && password === 'root') {
             // Login Exitoso
-            localStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('isLoggedIn', 'true');
             router.push('/');
         } else {
             setError('Usuario o contraseña incorrectos');

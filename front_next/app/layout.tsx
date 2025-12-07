@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Sistema de Gestión Hotelera",
 };
 
+import Autenticacion from "@/components/Autenticacion";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -18,7 +20,9 @@ export default function RootLayout({
         <div className="app-layout">
           <Sidebar />
           <main className="main-content">
-            {children}
+            <Autenticacion>
+              {children}
+            </Autenticacion>
           </main>
         </div>
       </body>

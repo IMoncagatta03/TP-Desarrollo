@@ -1,19 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Hotel } from 'lucide-react';
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-      router.push('/login');
-    }
-  }, [router]);
-
   return (
     <div className="flex flex-col items-center justify-center h-full text-center pt-12">
       <Hotel size={80} className="text-[#2c3e50] mb-5" />
