@@ -40,6 +40,7 @@ public class HabitacionService {
 
         for (Habitacion hab : habitaciones) {
             Map<String, String> estadosPorFecha = new HashMap<>();
+            Map<String, String> detallesPorFecha = new HashMap<>();
             LocalDate current = fechaDesde;
 
             while (!current.isAfter(fechaHasta)) {
@@ -90,6 +91,7 @@ public class HabitacionService {
                                 !current.isBefore(res.getFechaDesde()) &&
                                 !current.isAfter(res.getFechaHasta())) {
                             estado = EstadoHab.RESERVADO.name();
+                            detallesPorFecha.put(current.toString(), res.getNombres() + " " + res.getApellido());
                             break;
                         }
                     }
@@ -106,7 +108,8 @@ public class HabitacionService {
                 }
             }
 
-            resultado.add(new HabitacionEstadoDTO(hab.getNumero(), hab.getTipo(), estadosPorFecha, camas));
+            resultado.add(
+                    new HabitacionEstadoDTO(hab.getNumero(), hab.getTipo(), estadosPorFecha, detallesPorFecha, camas));
         }
 
         return resultado;

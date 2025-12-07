@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getApiBaseUrl, API_ROUTES } from '@/lib/api';
-import { Search, UserPlus, ArrowRight } from 'lucide-react';
+import { Search, UserPlus, ArrowRight, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 
 interface Huesped {
     nombres: string;
@@ -12,7 +12,20 @@ interface Huesped {
     numeroDocumento: string;
 }
 
-export default function BusquedaHuesped() {
+type SortKey = keyof Huesped;
+
+interface SortConfig {
+    key: SortKey | null;
+    direction: 'asc' | 'desc';
+}
+
+export interface BusquedaHuespedProps {
+    onSelect?: (selectedGuests: Huesped[]) => void;
+    isMultiple?: boolean;
+    onCancel?: () => void;
+}
+
+export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel }: BusquedaHuespedProps) {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [tipoDoc, setTipoDoc] = useState('');
@@ -20,7 +33,31 @@ export default function BusquedaHuesped() {
     const [resultados, setResultados] = useState<Huesped[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+    const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+
+    const handleSort = (key: SortKey) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedResultados = [...resultados].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        if (aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
 
     const router = useRouter();
 
@@ -29,7 +66,8 @@ export default function BusquedaHuesped() {
         setLoading(true);
         setError('');
         setResultados([]);
-        setSelectedDoc(null);
+
+        if (!isMultiple) setSelectedDocs([]);
 
         const params = new URLSearchParams();
         if (nombre) params.append('nombre', nombre);
@@ -55,24 +93,39 @@ export default function BusquedaHuesped() {
         }
     };
 
+    const toggleSelection = (doc: string) => {
+        if (isMultiple) {
+            setSelectedDocs(prev =>
+                prev.includes(doc) ? prev.filter(d => d !== doc) : [...prev, doc]
+            );
+        } else {
+            setSelectedDocs([doc]);
+        }
+    };
+
     const handleNext = () => {
-        if (selectedDoc) {
-            const selectedGuest = resultados.find(h => h.numeroDocumento === selectedDoc);
-            if (selectedGuest) {
+        if (onSelect) {
+            const selected = resultados.filter(h => selectedDocs.includes(h.numeroDocumento));
+            onSelect(selected);
+        } else {
+            if (selectedDocs.length > 0) {
+                const selectedGuest = resultados.find(h => h.numeroDocumento === selectedDocs[0]);
+                if (selectedGuest) {
+                    const params = new URLSearchParams();
+                    params.append('nombre', selectedGuest.nombres);
+                    params.append('apellido', selectedGuest.apellido);
+                    params.append('tipoDoc', selectedGuest.tipoDocumento);
+                    params.append('numDoc', selectedGuest.numeroDocumento);
+                    router.push(`/huespedes/nuevo?${params.toString()}`);
+                }
+            } else {
                 const params = new URLSearchParams();
-                params.append('nombre', selectedGuest.nombres);
-                params.append('apellido', selectedGuest.apellido);
-                params.append('tipoDoc', selectedGuest.tipoDocumento);
-                params.append('numDoc', selectedGuest.numeroDocumento);
+                if (nombre) params.append('nombre', nombre);
+                if (apellido) params.append('apellido', apellido);
+                if (tipoDoc) params.append('tipoDoc', tipoDoc);
+                if (numDoc) params.append('numDoc', numDoc);
                 router.push(`/huespedes/nuevo?${params.toString()}`);
             }
-        } else {
-            const params = new URLSearchParams();
-            if (nombre) params.append('nombre', nombre);
-            if (apellido) params.append('apellido', apellido);
-            if (tipoDoc) params.append('tipoDoc', tipoDoc);
-            if (numDoc) params.append('numDoc', numDoc);
-            router.push(`/huespedes/nuevo?${params.toString()}`);
         }
     };
 
@@ -81,7 +134,7 @@ export default function BusquedaHuesped() {
             <h2 className="text-[#0056b3] text-2xl font-bold mb-6 border-b-2 border-[#0056b3] pb-2">Buscar Huésped</h2>
 
             <div className="flex gap-10 h-full overflow-hidden">
-                {/* Search Form Column */}
+                {/* Columna de busqueda */}
                 <div className="w-[300px] shrink-0 overflow-y-auto pr-2">
                     <h3 className="text-lg font-bold mb-5 text-[#333] border-b-2 border-[#0056b3] pb-2 inline-block">Ingrese los datos</h3>
                     <form onSubmit={handleSearch}>
@@ -117,7 +170,7 @@ export default function BusquedaHuesped() {
                     </form>
                 </div>
 
-                {/* Results Column */}
+                {/* Columna de resultados */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                     <h3 className="text-lg font-bold mb-5 text-[#333] border-b-2 border-[#0056b3] pb-2 inline-block shrink-0">Resultado/s</h3>
 
@@ -126,10 +179,58 @@ export default function BusquedaHuesped() {
                             <thead>
                                 <tr>
                                     <th className="w-[50px] text-center">Seleccionar</th>
-                                    <th>Nombre/s</th>
-                                    <th>Apellido</th>
-                                    <th>Tipo Documento</th>
-                                    <th>Nro. Documento</th>
+                                    <th
+                                        className="cursor-pointer hover:bg-gray-100 group"
+                                        onClick={() => handleSort('nombres')}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            Nombre/s
+                                            {sortConfig.key === 'nombres' ? (
+                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                                            ) : (
+                                                <ChevronsUpDown size={16} className="text-gray-400" />
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th
+                                        className="cursor-pointer hover:bg-gray-100 group"
+                                        onClick={() => handleSort('apellido')}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            Apellido
+                                            {sortConfig.key === 'apellido' ? (
+                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                                            ) : (
+                                                <ChevronsUpDown size={16} className="text-gray-400" />
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th
+                                        className="cursor-pointer hover:bg-gray-100 group"
+                                        onClick={() => handleSort('tipoDocumento')}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            Tipo Documento
+                                            {sortConfig.key === 'tipoDocumento' ? (
+                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                                            ) : (
+                                                <ChevronsUpDown size={16} className="text-gray-400" />
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th
+                                        className="cursor-pointer hover:bg-gray-100 group"
+                                        onClick={() => handleSort('numeroDocumento')}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            Nro. Documento
+                                            {sortConfig.key === 'numeroDocumento' ? (
+                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                                            ) : (
+                                                <ChevronsUpDown size={16} className="text-gray-400" />
+                                            )}
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,7 +242,7 @@ export default function BusquedaHuesped() {
                                     <tr><td colSpan={5} className="text-center p-4 text-red-500">{error}</td></tr>
                                 )}
 
-                                {!loading && !error && resultados.length === 0 && (
+                                {!loading && !error && sortedResultados.length === 0 && (
                                     <tr>
                                         <td colSpan={5} className="text-center p-4">
                                             <p className="mb-2">No se encontraron resultados.</p>
@@ -152,14 +253,14 @@ export default function BusquedaHuesped() {
                                     </tr>
                                 )}
 
-                                {!loading && resultados.map((h) => (
-                                    <tr key={h.numeroDocumento} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedDoc(h.numeroDocumento)}>
+                                {!loading && sortedResultados.map((h) => (
+                                    <tr key={h.numeroDocumento} className="hover:bg-gray-50 cursor-pointer" onClick={() => toggleSelection(h.numeroDocumento)}>
                                         <td className="text-center">
                                             <input
-                                                type="radio"
+                                                type={isMultiple ? "checkbox" : "radio"}
                                                 name="selectedGuest"
-                                                checked={selectedDoc === h.numeroDocumento}
-                                                onChange={() => setSelectedDoc(h.numeroDocumento)}
+                                                checked={selectedDocs.includes(h.numeroDocumento)}
+                                                onChange={() => toggleSelection(h.numeroDocumento)}
                                                 className="cursor-pointer"
                                             />
                                         </td>
@@ -175,12 +276,15 @@ export default function BusquedaHuesped() {
 
                     <div className="mt-4 flex justify-end gap-4 shrink-0 pt-2 border-t border-gray-200">
                         <button type="button" onClick={() => {
-                            setNombre(''); setApellido(''); setTipoDoc(''); setNumDoc(''); setResultados([]);
-                            router.push('/');
+                            if (onCancel) onCancel();
+                            else {
+                                setNombre(''); setApellido(''); setTipoDoc(''); setNumDoc(''); setResultados([]);
+                                router.push('/');
+                            }
                         }} className="btn-cancel">CANCELAR</button>
 
                         <button type="button" onClick={handleNext} className="btn-submit bg-[#0056b3] flex items-center gap-2">
-                            SIGUIENTE <ArrowRight size={16} />
+                            {onSelect ? 'ACEPTAR' : 'SIGUIENTE'} <ArrowRight size={16} />
                         </button>
                     </div>
                 </div>

@@ -49,11 +49,19 @@ CREATE TABLE reserva (
 CREATE TABLE estadia (
     id             SERIAL PRIMARY KEY,
     id_huesped     VARCHAR(8) REFERENCES huespedes(numero_documento),
-    id_reserva     INTEGER UNIQUE REFERENCES reserva(id), -- Relación 1 a 1 opcional
+    id_reserva     INTEGER UNIQUE REFERENCES reserva(id), 
     fecha_desde    DATE NOT NULL,
     fecha_hasta    DATE NOT NULL,
     num_habitacion VARCHAR(3) NOT NULL REFERENCES habitacion(numero),
     estado         VARCHAR(20)
+);
+
+CREATE TABLE estadia_huespedes (
+    id_estadia INTEGER NOT NULL,
+    id_huesped VARCHAR(8) NOT NULL,
+    PRIMARY KEY (id_estadia, id_huesped),
+    CONSTRAINT fk_estadia FOREIGN KEY (id_estadia) REFERENCES estadia(id),
+    CONSTRAINT fk_huesped FOREIGN KEY (id_huesped) REFERENCES huespedes(numero_documento)
 );
 
 CREATE TABLE consumo (

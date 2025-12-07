@@ -3,6 +3,7 @@ package com.model;
 import com.enums.EstadoEstadia;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "estadia")
@@ -34,6 +35,10 @@ public class Estadia {
     @Column(name = "estado")
     private EstadoEstadia estado;
 
+    @ManyToMany
+    @JoinTable(name = "estadia_huespedes", joinColumns = @JoinColumn(name = "id_estadia"), inverseJoinColumns = @JoinColumn(name = "id_huesped"))
+    private List<Huesped> acompanantes;
+
     public Estadia() {
     }
 
@@ -51,6 +56,14 @@ public class Estadia {
 
     public void setHuesped(Huesped huesped) {
         this.huesped = huesped;
+    }
+
+    public List<Huesped> getAcompanantes() {
+        return acompanantes;
+    }
+
+    public void setAcompanantes(List<Huesped> acompanantes) {
+        this.acompanantes = acompanantes;
     }
 
     public Reserva getReserva() {

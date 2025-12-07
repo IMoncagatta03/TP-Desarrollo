@@ -8,7 +8,8 @@ export interface RoomStatus {
     numero: string;
     tipo: string;
     camas: string[];
-    estadosPorFecha: Record<string, string>; // "YYYY-MM-DD": "STATUS"
+    estadosPorFecha: Record<string, string>; // "YYYY-MM-DD": "Estado"
+    detallesPorFecha?: Record<string, string>; // "YYYY-MM-DD": "Nombre huesped"
 }
 
 interface GrillaDisponibilidadProps {
@@ -28,7 +29,7 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
     const [error, setError] = useState('');
     const router = useRouter();
 
-    // Filters
+    // Filtros
     const [tipos, setTipos] = useState({
         INDIVIDUAL_ESTANDAR: true,
         DOBLE_ESTANDAR: true,
