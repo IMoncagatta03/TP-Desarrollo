@@ -21,9 +21,10 @@ public class HuespedController {
 
     @PostMapping
     public ResponseEntity<?> darAltaHuesped(@Valid @RequestBody Huesped huesped,
-            @RequestParam(required = false) boolean force) {
+            @RequestParam(required = false) boolean force,
+            @RequestParam(required = false) String oldNumeroDocumento) {
         try {
-            Huesped nuevoHuesped = huespedService.crearHuesped(huesped, force);
+            Huesped nuevoHuesped = huespedService.crearHuesped(huesped, force, oldNumeroDocumento);
             return new ResponseEntity<>(nuevoHuesped, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,6 +55,16 @@ public class HuespedController {
             return new ResponseEntity<>(huesped, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Huésped no encontrado", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{numeroDocumento}")
+    public ResponseEntity<?> eliminarHuesped(@PathVariable String numeroDocumento) {
+        try {
+            huespedService.deleteHuesped(numeroDocumento);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("No se pudo eliminar el huésped", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

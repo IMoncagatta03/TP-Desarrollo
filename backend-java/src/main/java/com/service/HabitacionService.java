@@ -46,16 +46,13 @@ public class HabitacionService {
             while (!current.isAfter(fechaHasta)) {
                 String estado = EstadoHab.LIBRE.name(); // Default
 
-                // Check Estadia (Priority 1)
+                // Check Estadia
                 for (Estadia est : estadias) {
                     if (est.getHabitacion().getNumero().equals(hab.getNumero()) &&
                             !current.isBefore(est.getFechaDesde()) &&
                             !current.isAfter(est.getFechaHasta())) {
 
-                        // Use Estadia status if available and maps to EHab, otherwise default to
-                        // OCUPADO
-                        // Assuming Estadia.estado is a String that might match EHab names or be
-                        // specific
+                        // Usar el estado de la estadia
                         if (est.getEstado() != null) {
                             if (est.getEstado() == EstadoEstadia.VIGENTE
                                     || est.getEstado() == EstadoEstadia.PLAZO_EXTENDIDO) {
@@ -67,24 +64,13 @@ public class HabitacionService {
                         } else {
                             estado = EstadoHab.OCUPADO.name();
                         }
-
-                        // If the status determined from Estadia is OCUPADO, we stop checking.
-                        // If it is LIBRE (because it finished), we continue to check other stays or
-                        // reservations?
-                        // Actually, if there is a stay that is FINALIZED on this day, does it mean the
-                        // room is free?
-                        // Usually yes, unless there's another stay starting the same day?
-                        // The loop iterates over all stays. If we find one that makes it OCUPADO, we
-                        // break.
                         if (estado.equals(EstadoHab.OCUPADO.name())) {
                             break;
                         }
-                        // If it remains LIBRE (e.g. found a finalized stay), we keep checking other
-                        // stays.
                     }
                 }
 
-                // Check Reserva (Priority 2) - Only if still LIBRE
+                // Checkear reserva
                 if (estado.equals(EstadoHab.LIBRE.name())) {
                     for (Reserva res : reservas) {
                         if (res.getHabitacion().getNumero().equals(hab.getNumero()) &&

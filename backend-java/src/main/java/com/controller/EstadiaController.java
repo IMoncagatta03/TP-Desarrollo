@@ -34,4 +34,9 @@ public class EstadiaController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/check-huesped/{docNum}")
+    public ResponseEntity<Boolean> checkHuespedEstadias(@PathVariable String docNum) {
+        return ResponseEntity.ok(estadiaService.huespedTieneEstadias(docNum));
+    }
 }

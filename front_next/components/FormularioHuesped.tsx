@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getApiBaseUrl, API_ROUTES } from '@/lib/api';
@@ -56,6 +55,8 @@ export default function FormularioHuesped() {
     const [serverError, setServerError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [warningMessage, setWarningMessage] = useState('');
+    const [originalNumeroDocumento, setOriginalNumeroDocumento] = useState<string | null>(null);
+    const [deleteModal, setDeleteModal] = useState<{ show: boolean, type: 'BLOCK' | 'CONFIRM' | 'SUCCESS', message: React.ReactNode }>({ show: false, type: 'BLOCK', message: '' });
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -78,6 +79,7 @@ export default function FormularioHuesped() {
                             fechaNacimiento: formattedDate,
                             direccion: guestData.direccion || initialData.direccion
                         });
+                        setOriginalNumeroDocumento(guestData.numeroDocumento);
                     } else {
                         console.error('Error fetching guest details');
                     }
@@ -146,13 +148,11 @@ export default function FormularioHuesped() {
         if (!formData.fechaNacimiento) {
             newErrors.fechaNacimiento = 'Este campo es obligatorio.';
         } else {
-            const fechaNac = new Date(formData.fechaNacimiento);
-            const minDate = new Date('1900-01-01');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            // Validar rango de fecha
+            const minDate = '1900-01-01';
             const todayStr = new Date().toISOString().split('T')[0];
 
-            if (formData.fechaNacimiento < '1900-01-01' || formData.fechaNacimiento > todayStr) {
+            if (formData.fechaNacimiento < minDate || formData.fechaNacimiento > todayStr) {
                 newErrors.fechaNacimiento = 'Fecha inválida';
             }
         }
@@ -201,7 +201,13 @@ export default function FormularioHuesped() {
         setWarningMessage('');
 
         try {
-            const url = `${getApiBaseUrl()}${API_ROUTES.HUESPEDES}${force ? '?force=true' : ''}`;
+            let url = `${getApiBaseUrl()}${API_ROUTES.HUESPEDES}${force ? '?force=true' : ''}`;
+
+            // Chequear si el documento cambió
+            if (originalNumeroDocumento && originalNumeroDocumento !== formData.numeroDocumento) {
+                url += `${url.includes('?') ? '&' : '?'}oldNumeroDocumento=${originalNumeroDocumento}`;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -211,9 +217,14 @@ export default function FormularioHuesped() {
             if (response.ok) {
                 const nuevoHuesped = await response.json();
                 setSuccessMessage(`El huésped ${nuevoHuesped.nombres} ${nuevoHuesped.apellido} ha sido satisfactoriamente cargado.`);
+                setOriginalNumeroDocumento(nuevoHuesped.numeroDocumento);
             } else if (response.status === 409) {
                 const errorMsg = await response.text();
-                setWarningMessage(errorMsg);
+                if (errorMsg === "Al menos una estadía asociada") {
+                    setErrors(prev => ({ ...prev, numeroDocumento: 'Al menos una estadía asociada' }));
+                } else {
+                    setWarningMessage(errorMsg);
+                }
             } else if (response.status === 400) {
                 const erroresBackend = await response.json();
                 const backendErrors: Record<string, string> = {};
@@ -238,6 +249,84 @@ export default function FormularioHuesped() {
         setWarningMessage('');
         setServerError('');
     };
+
+    const handleDelete = async () => {
+        if (!formData.numeroDocumento) return;
+
+        try {
+            // Verificar si tiene estadias
+            const checkUrl = `${getApiBaseUrl()}/estadias/check-huesped/${formData.numeroDocumento}`;
+            const checkResponse = await fetch(checkUrl);
+            const hasEstadias = await checkResponse.json();
+
+            if (hasEstadias) {
+                setDeleteModal({
+                    show: true,
+                    type: 'BLOCK',
+                    message: (
+                        <>
+                            El huesped {formData.nombres}, {formData.apellido}, {formData.numeroDocumento} no puede ser eliminado pues se ha alojado en el hotel en alguna oportunidad
+                            <br /><br />
+                            <div className="text-center font-bold">Presione cualquier tecla para continuar...</div>
+                        </>
+                    )
+                });
+            } else {
+                setDeleteModal({
+                    show: true,
+                    type: 'CONFIRM',
+                    message: `El huesped ${formData.nombres}, ${formData.apellido}, ${formData.numeroDocumento} será eliminado del sistema`
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            setServerError('Error al verificar estadías.');
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            const url = `${getApiBaseUrl()}${API_ROUTES.HUESPEDES}/${formData.numeroDocumento}`;
+            const response = await fetch(url, { method: 'DELETE' });
+
+            if (response.ok) {
+                setDeleteModal({
+                    show: true,
+                    type: 'SUCCESS',
+                    message: (
+                        <>
+                            Los datos de {formData.nombres}, {formData.apellido}, <br /> {formData.numeroDocumento} han sido eliminados del sistema
+                            <br /><br />
+                            <div className="font-bold">Presione una tecla para continuar...</div>
+                        </>
+                    )
+                });
+            } else {
+                setServerError('Error al eliminar el huésped.');
+                setDeleteModal({ show: false, type: 'BLOCK', message: '' });
+            }
+        } catch (error) {
+            console.error(error);
+            setServerError('Error de conexión al eliminar.');
+            setDeleteModal({ show: false, type: 'BLOCK', message: '' });
+        }
+    };
+
+    // Listener global para cerrar modales
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!deleteModal.show) return;
+
+            if (deleteModal.type === 'BLOCK') {
+                setDeleteModal({ show: false, type: 'BLOCK', message: '' });
+            } else if (deleteModal.type === 'SUCCESS') {
+                router.push('/');
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [deleteModal, router]);
 
     const isModification = !!searchParams.get('numDoc');
 
@@ -272,6 +361,34 @@ export default function FormularioHuesped() {
                                 {isModification ? "Aceptar" : "ACEPTAR IGUALMENTE"}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Borrado */}
+            {deleteModal.show && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
+                        <div className="text-lg mb-5 text-gray-800">
+                            {deleteModal.message}
+                        </div>
+
+                        {deleteModal.type === 'CONFIRM' && (
+                            <div className="flex justify-center gap-4 mt-4">
+                                <button
+                                    onClick={() => setDeleteModal({ show: false, type: 'BLOCK', message: '' })}
+                                    className="btn-cancel"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleConfirmDelete}
+                                    className="px-4 py-2 border border-[#dc3545] text-[#dc3545] rounded bg-transparent hover:bg-red-50 font-medium transition-colors cursor-pointer"
+                                >
+                                    Borrar
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -410,6 +527,17 @@ export default function FormularioHuesped() {
 
                 <div className="flex justify-center gap-4 mt-4">
                     <button type="button" onClick={() => router.push('/')} className="btn-cancel">CANCELAR</button>
+
+                    {isModification && (
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="px-4 py-2 border border-[#dc3545] text-[#dc3545] rounded bg-transparent hover:bg-red-50 font-medium transition-colors cursor-pointer"
+                        >
+                            Borrar
+                        </button>
+                    )}
+
                     <button type="submit" className="btn-submit">GUARDAR</button>
                 </div>
             </form>

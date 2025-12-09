@@ -70,10 +70,14 @@ public class EstadiaService {
             }
         }
 
-        // We only allow updating guests for this specific use case
+        // Solo se permite actualizar los huespedes para este caso de uso
         estadia.setHuesped(responsable);
         estadia.setAcompanantes(acompanantes);
 
         return estadiaRepository.save(estadia);
+    }
+
+    public boolean huespedTieneEstadias(String docNum) {
+        return estadiaRepository.countByHuespedNumeroDocumento(docNum) > 0;
     }
 }

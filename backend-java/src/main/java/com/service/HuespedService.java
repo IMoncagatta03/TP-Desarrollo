@@ -17,8 +17,24 @@ public class HuespedService {
     @Autowired
     private HuespedRepository huespedRepository;
 
+    @Autowired
+    private com.repository.DireccionRepository direccionRepository;
+
+    @Autowired
+    private EstadiaService estadiaService;
+
     @Transactional
-    public Huesped crearHuesped(Huesped huesped, boolean force) throws Exception {
+    public Huesped crearHuesped(Huesped huesped, boolean force, String oldNumeroDocumento) throws Exception {
+
+        // Chequea si el documento del huesped esta cambiando
+        if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
+                && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
+            // Documento cambiado. Chequea si el huesped tiene estadias
+            if (estadiaService.huespedTieneEstadias(oldNumeroDocumento)) {
+                throw new Exception("Al menos una estadía asociada");
+            }
+            // Si no tiene, creamos el nuevo y eliminamos el viejo
+        }
 
         boolean yaExiste = huespedRepository.existsById(huesped.getNumeroDocumento());
 
@@ -26,7 +42,7 @@ public class HuespedService {
             if (!force) {
                 throw new Exception("¡CUIDADO! El tipo y número de documento ya existen en el sistema");
             } else {
-                // Si force es true, actualizamos los datos del huésped existente
+                // Si force es true, actualizamos los datos del huesped existente
                 Huesped huespedExistente = huespedRepository.findById(huesped.getNumeroDocumento()).orElse(null);
 
                 if (huespedExistente != null) {
@@ -67,7 +83,20 @@ public class HuespedService {
             direccion.setHuesped(huesped);
         }
 
-        return huespedRepository.save(huesped);
+        Huesped nuevoHuesped = huespedRepository.save(huesped);
+
+        // Si guardamos exitosamente el nuevo y cambiamos el documento, eliminamos el
+        // viejo
+        if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
+                && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
+            Huesped oldHuesped = huespedRepository.findById(oldNumeroDocumento).orElse(null);
+            if (oldHuesped != null && oldHuesped.getDireccion() != null) {
+                direccionRepository.delete(oldHuesped.getDireccion());
+            }
+            huespedRepository.deleteById(oldNumeroDocumento);
+        }
+
+        return nuevoHuesped;
     }
 
     public List<com.dto.HuespedDTO> obtenerTodos() {
@@ -97,5 +126,10 @@ public class HuespedService {
 
     public Huesped obtenerHuespedPorDocumento(String numeroDocumento) {
         return huespedRepository.findById(numeroDocumento).orElse(null);
+    }
+
+    @Transactional
+    public void deleteHuesped(String docNum) {
+        huespedRepository.deleteById(docNum);
     }
 }
