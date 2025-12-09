@@ -23,9 +23,10 @@ export interface BusquedaHuespedProps {
     onSelect?: (selectedGuests: Huesped[]) => void;
     isMultiple?: boolean;
     onCancel?: () => void;
+    excludeDocs?: string[];
 }
 
-export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel }: BusquedaHuespedProps) {
+export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel, excludeDocs = [] }: BusquedaHuespedProps) {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [tipoDoc, setTipoDoc] = useState('');
@@ -44,20 +45,22 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
         setSortConfig({ key, direction });
     };
 
-    const sortedResultados = [...resultados].sort((a, b) => {
-        if (!sortConfig.key) return 0;
+    const sortedResultados = [...resultados]
+        .filter(h => !excludeDocs.includes(h.numeroDocumento))
+        .sort((a, b) => {
+            if (!sortConfig.key) return 0;
 
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
+            const aValue = a[sortConfig.key];
+            const bValue = b[sortConfig.key];
 
-        if (aValue < bValue) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-    });
+            if (aValue < bValue) {
+                return sortConfig.direction === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
 
     const router = useRouter();
 
@@ -80,7 +83,12 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
             const response = await fetch(url);
 
             if (response.ok) {
-                const data = await response.json();
+                let data = await response.json();
+
+                if (excludeDocs && excludeDocs.length > 0) {
+                    data = data.filter((h: Huesped) => !excludeDocs.includes(h.numeroDocumento));
+                }
+
                 setResultados(data);
             } else {
                 setError('Error al buscar datos');
@@ -104,6 +112,10 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
     };
 
     const handleNext = () => {
+        if (isMultiple && selectedDocs.length === 0) {
+            return;
+        }
+
         if (onSelect) {
             const selected = resultados.filter(h => selectedDocs.includes(h.numeroDocumento));
             onSelect(selected);
@@ -140,28 +152,29 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                     <form onSubmit={handleSearch}>
                         <div className="form-group">
                             <label htmlFor="busqueda-nombre">Nombre</label>
-                            <input type="text" id="busqueda-nombre" value={nombre} onChange={(e) => setNombre(e.target.value.toUpperCase())} placeholder="Nombre" />
+                            <input type="text" id="busqueda-nombre" value={nombre} onChange={(e) => setNombre(e.target.value.toUpperCase())} placeholder="Nombre" className="bg-white" />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="busqueda-apellido">Apellido</label>
-                            <input type="text" id="busqueda-apellido" value={apellido} onChange={(e) => setApellido(e.target.value.toUpperCase())} placeholder="Apellido" />
+                            <input type="text" id="busqueda-apellido" value={apellido} onChange={(e) => setApellido(e.target.value.toUpperCase())} placeholder="Apellido" className="bg-white" />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="busqueda-tipoDoc">Tipo de documento</label>
-                            <select id="busqueda-tipoDoc" value={tipoDoc} onChange={(e) => setTipoDoc(e.target.value)}>
+                            <select id="busqueda-tipoDoc" value={tipoDoc} onChange={(e) => setTipoDoc(e.target.value)} className="bg-white">
                                 <option value="">Todos</option>
                                 <option value="DNI">DNI</option>
                                 <option value="LE">LE</option>
                                 <option value="LC">LC</option>
-                                <option value="Pasaporte">Pasaporte</option>
+                                <option value="PASAPORTE">Pasaporte</option>
+                                <option value="OTRO">Otro</option>
                             </select>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="busqueda-numDoc">Número de documento</label>
-                            <input type="text" id="busqueda-numDoc" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} placeholder="Número de documento" />
+                            <input type="text" id="busqueda-numDoc" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} placeholder="Número de documento" className="bg-white" />
                         </div>
 
                         <button type="submit" className="btn-submit w-full mt-2 flex justify-center items-center gap-2">

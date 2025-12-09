@@ -19,9 +19,10 @@ interface GrillaDisponibilidadProps {
     children?: ReactNode;
     footerChildren?: ReactNode;
     onDataLoaded?: (data: RoomStatus[]) => void;
+    minDate?: string;
 }
 
-export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle, children, footerChildren, onDataLoaded }: GrillaDisponibilidadProps) {
+export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle, children, footerChildren, onDataLoaded, minDate }: GrillaDisponibilidadProps) {
     const [fechaDesde, setFechaDesde] = useState('');
     const [fechaHasta, setFechaHasta] = useState('');
     const [habitaciones, setHabitaciones] = useState<RoomStatus[]>([]);
@@ -51,6 +52,21 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
         }
         if (fechaDesde > fechaHasta) {
             setError("La fecha 'Desde' no puede ser mayor a la fecha 'Hasta'.");
+            return;
+        }
+
+        if (minDate && fechaDesde < minDate) {
+            setError("La fecha 'Desde' no puede ser anterior a la fecha actual.");
+            return;
+        }
+
+        const start = new Date(fechaDesde);
+        const end = new Date(fechaHasta);
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 60) {
+            setError("El rango de fecha no puede superar los 60 días.");
             return;
         }
 
@@ -88,7 +104,14 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
         return dateArray;
     };
 
-    const dates = (fechaDesde && fechaHasta && !error) ? getDatesInRange(fechaDesde, fechaHasta) : [];
+    const getDifferenceInDays = (start: string, end: string) => {
+        const d1 = new Date(start);
+        const d2 = new Date(end);
+        const diffTime = Math.abs(d2.getTime() - d1.getTime());
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    const dates = (fechaDesde && fechaHasta && !error && getDifferenceInDays(fechaDesde, fechaHasta) <= 60) ? getDatesInRange(fechaDesde, fechaHasta) : [];
 
     const getStatusClass = (status: string) => {
         switch (status) {
@@ -125,7 +148,7 @@ export default function GrillaDisponibilidad({ title, onCellClick, getCellStyle,
                         id="estado-fecha-desde"
                         value={fechaDesde}
                         onChange={(e) => setFechaDesde(e.target.value)}
-                        min="2020-01-01" max="2030-12-31"
+                        min={minDate || "2020-01-01"} max="2030-12-31"
                         required
                     />
                 </div>

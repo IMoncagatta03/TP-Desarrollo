@@ -4,7 +4,9 @@ import FormularioHuesped from '@/components/FormularioHuesped';
 export default function NuevoHuespedPage() {
     return (
         <Suspense fallback={<div>Cargando...</div>}>
-            <FormularioHuesped />
+            <div className="p-[10px]">
+                <FormularioHuesped />
+            </div>
         </Suspense>
     );
 }

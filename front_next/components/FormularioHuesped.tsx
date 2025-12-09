@@ -143,7 +143,19 @@ export default function FormularioHuesped() {
         if (!formData.apellido.trim()) newErrors.apellido = 'Este campo es obligatorio.';
         else if (!soloTexto.test(formData.apellido)) newErrors.apellido = 'Solo se permiten letras.';
 
-        if (!formData.fechaNacimiento) newErrors.fechaNacimiento = 'Este campo es obligatorio.';
+        if (!formData.fechaNacimiento) {
+            newErrors.fechaNacimiento = 'Este campo es obligatorio.';
+        } else {
+            const fechaNac = new Date(formData.fechaNacimiento);
+            const minDate = new Date('1900-01-01');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            if (formData.fechaNacimiento < '1900-01-01' || formData.fechaNacimiento > todayStr) {
+                newErrors.fechaNacimiento = 'Fecha inválida';
+            }
+        }
 
         if (!formData.numeroDocumento.trim()) newErrors.numeroDocumento = 'Este campo es obligatorio.';
         else if (!soloNumeros.test(formData.numeroDocumento)) newErrors.numeroDocumento = 'Solo se permiten números.';
@@ -173,7 +185,7 @@ export default function FormularioHuesped() {
         else if (!soloTexto.test(formData.direccion.pais)) newErrors['direccion.pais'] = 'Solo se permiten letras.';
 
         if (formData.posicionIva === 'RESPONSABLE_INSCRIPTO' && !formData.cuit?.trim()) {
-            newErrors.cuit = 'El CUIT es obligatorio para Responsable Inscripto.';
+            newErrors.cuit = 'El CUIT es obligatorio para R.I.';
         }
 
         setErrors(newErrors);
@@ -269,16 +281,16 @@ export default function FormularioHuesped() {
                     <legend className="text-[#0056b3] font-bold px-2 text-base">Datos Personales</legend>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="nombres" className="text-sm mb-1 block">Nombres:</label>
                             <input type="text" name="nombres" value={formData.nombres} onChange={handleChange} className={`h-8 text-sm ${errors.nombres ? 'input-error' : ''}`} />
-                            {errors.nombres && <small className="error-text block text-xs">{errors.nombres}</small>}
+                            {errors.nombres && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.nombres}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="apellido" className="text-sm mb-1 block">Apellido:</label>
                             <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} className={`h-8 text-sm ${errors.apellido ? 'input-error' : ''}`} />
-                            {errors.apellido && <small className="error-text block text-xs">{errors.apellido}</small>}
+                            {errors.apellido && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.apellido}</small>}
                         </div>
 
                         <div className="form-group mb-1">
@@ -286,10 +298,10 @@ export default function FormularioHuesped() {
                             <input type="email" name="email" value={formData.email} onChange={handleChange} className="h-8 text-sm" />
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="fechaNacimiento" className="text-sm mb-1 block">Fecha de Nacimiento:</label>
-                            <input type="date" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} className={`h-8 text-sm ${errors.fechaNacimiento ? 'input-error' : ''}`} />
-                            {errors.fechaNacimiento && <small className="error-text block text-xs">{errors.fechaNacimiento}</small>}
+                            <input type="date" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} min="1900-01-01" max={new Date().toISOString().split('T')[0]} className={`h-8 text-sm ${errors.fechaNacimiento ? 'input-error' : ''}`} />
+                            {errors.fechaNacimiento && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.fechaNacimiento}</small>}
                         </div>
 
                         <div className="form-group mb-1">
@@ -298,27 +310,27 @@ export default function FormularioHuesped() {
                                 <option value="DNI">DNI</option>
                                 <option value="LE">LE</option>
                                 <option value="LC">LC</option>
-                                <option value="Pasaporte">Pasaporte</option>
-                                <option value="Otro">Otro</option>
+                                <option value="PASAPORTE">Pasaporte</option>
+                                <option value="OTRO">Otro</option>
                             </select>
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="numeroDocumento" className="text-sm mb-1 block">Número de Documento:</label>
                             <input type="text" name="numeroDocumento" value={formData.numeroDocumento} onChange={handleChange} maxLength={8} className={`h-8 text-sm ${errors.numeroDocumento ? 'input-error' : ''}`} />
-                            {errors.numeroDocumento && <small className="error-text block text-xs">{errors.numeroDocumento}</small>}
+                            {errors.numeroDocumento && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.numeroDocumento}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="nacionalidad" className="text-sm mb-1 block">Nacionalidad:</label>
                             <input type="text" name="nacionalidad" value={formData.nacionalidad} onChange={handleChange} className={`h-8 text-sm ${errors.nacionalidad ? 'input-error' : ''}`} />
-                            {errors.nacionalidad && <small className="error-text block text-xs">{errors.nacionalidad}</small>}
+                            {errors.nacionalidad && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.nacionalidad}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="ocupacion" className="text-sm mb-1 block">Ocupación:</label>
                             <input type="text" name="ocupacion" value={formData.ocupacion} onChange={handleChange} className={`h-8 text-sm ${errors.ocupacion ? 'input-error' : ''}`} />
-                            {errors.ocupacion && <small className="error-text block text-xs">{errors.ocupacion}</small>}
+                            {errors.ocupacion && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.ocupacion}</small>}
                         </div>
 
                         <div className="form-group mb-1">
@@ -331,16 +343,16 @@ export default function FormularioHuesped() {
                             </select>
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="cuit" className="text-sm mb-1 block">CUIT (Opcional):</label>
                             <input type="text" name="cuit" value={formData.cuit} onChange={handleChange} maxLength={13} className={`h-8 text-sm ${errors.cuit ? 'input-error' : ''}`} />
-                            {errors.cuit && <small className="error-text block text-xs">{errors.cuit}</small>}
+                            {errors.cuit && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.cuit}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="telefono" className="text-sm mb-1 block">Teléfono:</label>
                             <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} maxLength={20} className={`h-8 text-sm ${errors.telefono ? 'input-error' : ''}`} />
-                            {errors.telefono && <small className="error-text block text-xs">{errors.telefono}</small>}
+                            {errors.telefono && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors.telefono}</small>}
                         </div>
 
                     </div>
@@ -350,16 +362,16 @@ export default function FormularioHuesped() {
                     <legend className="text-[#0056b3] font-bold px-2 text-base">Dirección</legend>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="direccionCalle" className="text-sm mb-1 block">Calle:</label>
                             <input type="text" name="direccion.direccionCalle" value={formData.direccion.direccionCalle} onChange={handleChange} className={`h-8 text-sm ${errors['direccion.direccionCalle'] ? 'input-error' : ''}`} />
-                            {errors['direccion.direccionCalle'] && <small className="error-text block text-xs">{errors['direccion.direccionCalle']}</small>}
+                            {errors['direccion.direccionCalle'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.direccionCalle']}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="direccionNumero" className="text-sm mb-1 block">Número:</label>
                             <input type="text" name="direccion.direccionNumero" value={formData.direccion.direccionNumero} onChange={handleChange} maxLength={10} className={`h-8 text-sm ${errors['direccion.direccionNumero'] ? 'input-error' : ''}`} />
-                            {errors['direccion.direccionNumero'] && <small className="error-text block text-xs">{errors['direccion.direccionNumero']}</small>}
+                            {errors['direccion.direccionNumero'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.direccionNumero']}</small>}
                         </div>
 
                         <div className="form-group mb-1">
@@ -367,28 +379,28 @@ export default function FormularioHuesped() {
                             <input type="text" name="direccion.direccionPiso" value={formData.direccion.direccionPiso} onChange={handleChange} maxLength={10} className="h-8 text-sm" />
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="codigoPostal" className="text-sm mb-1 block">Código Postal:</label>
                             <input type="text" name="direccion.codigoPostal" value={formData.direccion.codigoPostal} onChange={handleChange} maxLength={10} className={`h-8 text-sm ${errors['direccion.codigoPostal'] ? 'input-error' : ''}`} />
-                            {errors['direccion.codigoPostal'] && <small className="error-text block text-xs">{errors['direccion.codigoPostal']}</small>}
+                            {errors['direccion.codigoPostal'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.codigoPostal']}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="localidad" className="text-sm mb-1 block">Localidad:</label>
                             <input type="text" name="direccion.localidad" value={formData.direccion.localidad} onChange={handleChange} className={`h-8 text-sm ${errors['direccion.localidad'] ? 'input-error' : ''}`} />
-                            {errors['direccion.localidad'] && <small className="error-text block text-xs">{errors['direccion.localidad']}</small>}
+                            {errors['direccion.localidad'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.localidad']}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="provincia" className="text-sm mb-1 block">Provincia:</label>
                             <input type="text" name="direccion.provincia" value={formData.direccion.provincia} onChange={handleChange} className={`h-8 text-sm ${errors['direccion.provincia'] ? 'input-error' : ''}`} />
-                            {errors['direccion.provincia'] && <small className="error-text block text-xs">{errors['direccion.provincia']}</small>}
+                            {errors['direccion.provincia'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.provincia']}</small>}
                         </div>
 
-                        <div className="form-group mb-1">
+                        <div className="form-group mb-1 relative">
                             <label htmlFor="pais" className="text-sm mb-1 block">País:</label>
                             <input type="text" name="direccion.pais" value={formData.direccion.pais} onChange={handleChange} className={`h-8 text-sm ${errors['direccion.pais'] ? 'input-error' : ''}`} />
-                            {errors['direccion.pais'] && <small className="error-text block text-xs">{errors['direccion.pais']}</small>}
+                            {errors['direccion.pais'] && <small className="error-text block text-xs absolute -bottom-4 left-0 z-10">{errors['direccion.pais']}</small>}
                         </div>
 
                     </div>
@@ -398,7 +410,7 @@ export default function FormularioHuesped() {
 
                 <div className="flex justify-center gap-4 mt-4">
                     <button type="button" onClick={() => router.push('/')} className="btn-cancel">CANCELAR</button>
-                    <button type="submit" className="btn-submit">SIGUIENTE</button>
+                    <button type="submit" className="btn-submit">GUARDAR</button>
                 </div>
             </form>
         </div>

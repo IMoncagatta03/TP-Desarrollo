@@ -244,6 +244,7 @@ export default function Reserva() {
             onCellClick={handleCellClick}
             getCellStyle={getCellStyle}
             onDataLoaded={handleDataLoaded}
+            minDate={new Date().toISOString().split('T')[0]}
             footerChildren={
                 reservations.length > 0 || pendingSelection ? (
                     <button

@@ -18,24 +18,21 @@ export default function OcuparHabitacion() {
     const router = useRouter();
     const [step, setStep] = useState(1);
 
-    // Room Selection State
-    // Single confirmed selection
+    // Seleccion de habitacion
     const [selectedRoom, setSelectedRoom] = useState<{ numero: string, start: string, end: string } | null>(null);
-    // Stores current pending selection (first click)
     const [pendingSelection, setPendingSelection] = useState<{ numero: string, start: string } | null>(null);
     const [roomData, setRoomData] = useState<any[]>([]);
 
-    // Conflict Modal State
+    // Modal de conflictos
     const [conflictData, setConflictData] = useState<{ show: boolean, guestName: string, dates: string[] } | null>(null);
 
-    // Guest Selection State
+    // Seleccion de huespedes
     const [responsibleGuest, setResponsibleGuest] = useState<Huesped | null>(null);
     const [companions, setCompanions] = useState<Huesped[]>([]);
 
-    // Success Modal State
+    // Modal de exito
     const [successData, setSuccessData] = useState<{ show: boolean, estadiaId: number | null }>({ show: false, estadiaId: null });
 
-    // UI State
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -46,11 +43,11 @@ export default function OcuparHabitacion() {
     const handleRoomSelection = (numero: string, fecha: string, status: string, tipo: string) => {
         if (status !== 'LIBRE' && status !== 'RESERVADO') return;
 
-        // Determine if we are interacting with the currently active room (pending or confirmed)
+        // Determina si estamos interactuando con la habitacion activa (pendiente o confirmada)
         const isCurrentRoom = (pendingSelection && pendingSelection.numero === numero) ||
             (selectedRoom && selectedRoom.numero === numero);
 
-        // Case 1: Clicking a DIFFERENT room -> Reset everything and start fresh here
+        // Caso 1: Clickear una habitacion diferente -> Resetear todo y comenzar de nuevo
         if (!isCurrentRoom) {
             setSelectedRoom(null);
             setPendingSelection({ numero, start: fecha });
@@ -58,7 +55,7 @@ export default function OcuparHabitacion() {
             return;
         }
 
-        // Case 2: Clicking the SAME room that is already CONFIRMED -> Reset and start fresh (Edit mode)
+        // Caso 2: Clickear la misma habitacion que ya esta CONFIRMADA -> Resetear todo y comenzar de nuevo 
         if (selectedRoom) {
             setSelectedRoom(null);
             setPendingSelection({ numero, start: fecha });
@@ -66,7 +63,7 @@ export default function OcuparHabitacion() {
             return;
         }
 
-        // Case 3: Clicking the SAME room that is PENDING -> Confirm the range
+        // Caso 3: Clickear la misma habitacion que ya esta PENDIENTE -> Confirmar el rango
         if (pendingSelection) {
             let start = pendingSelection.start;
             let end = fecha;
@@ -76,8 +73,7 @@ export default function OcuparHabitacion() {
                 end = pendingSelection.start;
             }
 
-            // Validate availability
-            // ... (Logic remains same, stripped for brevity in tool call but keeping logic in mind)
+            // Validar disponibilidad
             const room = roomData.find(r => r.numero === numero);
             if (room) {
                 let currentDate = new Date(start + 'T00:00:00');
@@ -102,14 +98,13 @@ export default function OcuparHabitacion() {
                 }
             }
 
-            // Confirm selection
+            // Confirmar seleccion
             setSelectedRoom({ numero, start, end });
             setPendingSelection(null);
         }
     };
 
     const getCellStyle = (numero: string, fecha: string, status: string) => {
-        // ... (Keep existing logic)
         let baseClass = '';
         if (status === 'LIBRE') baseClass = 'bg-[#28a745] text-white hover:bg-[#218838]';
         else if (status === 'OCUPADO') baseClass = 'bg-[#dc3545] text-white';
@@ -133,7 +128,7 @@ export default function OcuparHabitacion() {
 
     const confirmRoomSelection = () => {
         if (selectedRoom) {
-            // Check for RESERVADO conflict
+            // Checkear conflictos
             const room = roomData.find(r => r.numero === selectedRoom.numero);
             if (room) {
                 const startStr = selectedRoom.start;
@@ -170,7 +165,7 @@ export default function OcuparHabitacion() {
         }
     };
 
-    // ... (Keep existing conflict handlers)
+    // Manejar conflictos
     const handleConflictCancel = () => {
         setSelectedRoom(null);
         setConflictData(null);
@@ -355,14 +350,16 @@ export default function OcuparHabitacion() {
                     onCellClick={handleRoomSelection}
                     getCellStyle={getCellStyle}
                     onDataLoaded={handleDataLoaded}
+                    minDate={new Date().toISOString().split('T')[0]}
                     footerChildren={
-                        <button
-                            onClick={confirmRoomSelection}
-                            disabled={!selectedRoom}
-                            className="btn-submit bg-[#0056b3] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            CONTINUAR <Users size={16} />
-                        </button>
+                        selectedRoom ? (
+                            <button
+                                onClick={confirmRoomSelection}
+                                className="btn-submit bg-[#0056b3] flex items-center gap-2"
+                            >
+                                CONTINUAR <Users size={16} />
+                            </button>
+                        ) : null
                     }
                 >
                     {error && <p className="text-red-500 font-bold text-center mt-2">{error}</p>}
@@ -374,6 +371,10 @@ export default function OcuparHabitacion() {
                     isMultiple={true}
                     onSelect={handleGuestSelection}
                     onCancel={() => setStep(1)}
+                    excludeDocs={[
+                        responsibleGuest?.numeroDocumento,
+                        ...companions.map(c => c.numeroDocumento)
+                    ].filter(Boolean) as string[]}
                 />
             )}
 

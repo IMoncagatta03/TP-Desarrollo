@@ -1,13 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Home, UserPlus, Search, Bed, CalendarCheck, UserCog, LogOut, Hotel, DoorOpen } from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const isActive = (path: string) => pathname === path;
+    const isActive = (path: string) => {
+        // Si estamos en /huespedes/nuevo pero hay un numDoc en los params, significa que estamos Modificando, no dando de alta
+        if (path === '/huespedes/nuevo' && searchParams.get('numDoc')) {
+            return false;
+        }
+        return pathname === path;
+    };
 
     const menuItems = [
         { href: '/', icon: Home, label: 'Inicio' },

@@ -32,6 +32,7 @@ public class HuespedService {
                 if (huespedExistente != null) {
                     huespedExistente.setApellido(huesped.getApellido());
                     huespedExistente.setNombres(huesped.getNombres());
+                    huespedExistente.setTipoDocumento(huesped.getTipoDocumento());
                     huespedExistente.setCuit(huesped.getCuit());
                     huespedExistente.setPosicionIva(huesped.getPosicionIva());
                     huespedExistente.setFechaNacimiento(huesped.getFechaNacimiento());
