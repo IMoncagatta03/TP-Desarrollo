@@ -22,4 +22,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
         List<Reserva> findReservasDeHabitacionEnRango(@Param("habitacion") Habitacion habitacion,
                         @Param("fechaDesde") LocalDate fechaDesde,
                         @Param("fechaHasta") LocalDate fechaHasta);
+
+        List<Reserva> findByApellidoStartingWithIgnoreCaseAndNombresStartingWithIgnoreCase(String apellido,
+                        String nombres);
+
+        List<Reserva> findByApellidoStartingWithIgnoreCase(String apellido);
 }

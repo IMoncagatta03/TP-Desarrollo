@@ -53,4 +53,22 @@ public class ReservaService {
 
         return reservaRepository.saveAll(nuevasReservas);
     }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> buscarReservas(String apellido, String nombres) {
+        if (nombres != null && !nombres.isBlank()) {
+            return reservaRepository.findByApellidoStartingWithIgnoreCaseAndNombresStartingWithIgnoreCase(apellido,
+                    nombres);
+        } else {
+            return reservaRepository.findByApellidoStartingWithIgnoreCase(apellido);
+        }
+    }
+
+    @Transactional
+    public void cancelarReserva(Integer id) {
+        if (!reservaRepository.existsById(id)) {
+            throw new RuntimeException("Reserva no encontrada con ID: " + id);
+        }
+        reservaRepository.deleteById(id);
+    }
 }

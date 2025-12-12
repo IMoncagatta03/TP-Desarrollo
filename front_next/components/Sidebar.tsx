@@ -22,6 +22,7 @@ export default function Sidebar() {
         { href: '/huespedes/buscar', icon: Search, label: 'Buscar Huésped' },
         { href: '/habitaciones', icon: Bed, label: 'Estado Habitaciones' },
         { href: '/reservas', icon: CalendarCheck, label: 'Reservar Habitación' },
+        { href: '/reservas/cancelar', icon: LogOut, label: 'Cancelar Reserva' },
         { href: '/ocupar-habitacion', icon: DoorOpen, label: 'Ocupar Habitación' },
     ];
 

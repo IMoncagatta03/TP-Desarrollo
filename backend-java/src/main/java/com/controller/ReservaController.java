@@ -28,4 +28,27 @@ public class ReservaController {
             return new ResponseEntity<>("Error interno al crear las reservas.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<List<Reserva>> buscarReservas(
+            @RequestParam String apellido,
+            @RequestParam(required = false) String nombres) {
+        List<Reserva> reservas = reservaService.buscarReservas(apellido, nombres);
+        if (reservas.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(reservas, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> cancelarReserva(@PathVariable Integer id) {
+        try {
+            reservaService.cancelarReserva(id);
+            return new ResponseEntity<>("Reserva cancelada exitosamente.", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error interno al cancelar la reserva.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
