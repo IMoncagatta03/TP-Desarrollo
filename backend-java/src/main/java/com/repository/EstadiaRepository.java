@@ -19,4 +19,7 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
     // Contar estadias donde el huesped es responsable o acompañante
     @Query("SELECT COUNT(e) FROM Estadia e LEFT JOIN e.acompanantes a WHERE e.huesped.numeroDocumento = :docNum OR a.numeroDocumento = :docNum")
     long countByHuespedNumeroDocumento(@Param("docNum") String docNum);
+
+    @Query("SELECT e FROM Estadia e WHERE e.habitacion.numero = :numeroHabitacion AND e.estado = 'VIGENTE'")
+    java.util.Optional<Estadia> findByHabitacionNumeroActiva(@Param("numeroHabitacion") String numeroHabitacion);
 }

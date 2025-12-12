@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, UserPlus, Search, Bed, CalendarCheck, UserCog, LogOut, Hotel, DoorOpen } from 'lucide-react';
+import { Home, UserPlus, Search, Bed, CalendarCheck, UserCog, LogOut, Hotel, DoorOpen, FileText } from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -24,6 +24,7 @@ export default function Sidebar() {
         { href: '/reservas', icon: CalendarCheck, label: 'Reservar Habitación' },
         { href: '/reservas/cancelar', icon: LogOut, label: 'Cancelar Reserva' },
         { href: '/ocupar-habitacion', icon: DoorOpen, label: 'Ocupar Habitación' },
+        { href: '/facturacion', icon: FileText, label: 'Facturar' },
     ];
 
     const logout = () => {
