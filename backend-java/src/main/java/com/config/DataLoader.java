@@ -51,26 +51,35 @@ public class DataLoader {
                 }
 
                 // Load Persona Fisica (Responsable Mock)
-                // Needs a Huesped first
+                // Load Persona Fisica (Responsable Mock)
                 String docMock = "11111111";
-                if (huespedRepository.findById(docMock).isEmpty()) {
+                String cuitMock = "20111111112";
+
+                // Ensure Huesped exists
+                Huesped h = huespedRepository.findById(docMock).orElse(null);
+                if (h == null) {
                     System.out.println("Cargando datos de prueba: Huesped Juan Perez");
-                    Huesped h = new Huesped();
+                    h = new Huesped();
                     h.setNumeroDocumento(docMock);
                     h.setTipoDocumento(com.enums.TipoDoc.DNI);
                     h.setApellido("Perez");
                     h.setNombres("Juan");
-                    h.setFechaNacimiento(new Date()); // Today/Simplification
+                    h.setFechaNacimiento(new Date());
                     h.setEmail("juan.perez@example.com");
                     h.setTelefono("1122334455");
                     h.setNacionalidad("Argentina");
                     h.setOcupacion("Empleado");
                     huespedRepository.save(h);
+                }
 
-                    // Now create PersonaFisica linked to this Huesped
+                // Ensure PersonaFisica exists
+                if (personaFisicaRepository.findByCuit(cuitMock).isEmpty()) {
+                    System.out.println("Cargando datos de prueba: Persona Fisica Juan Perez");
                     PersonaFisica pf = new PersonaFisica();
                     pf.setTipoResponsable("FISICO");
                     pf.setHuesped(h);
+                    pf.setCuit(cuitMock);
+                    pf.setRazonSocial("Juan Perez");
                     personaFisicaRepository.save(pf);
                 }
             } catch (Exception e) {

@@ -64,10 +64,17 @@ public class ReservaService {
         }
     }
 
+    @Autowired
+    private com.repository.EstadiaRepository estadiaRepository;
+
     @Transactional
     public void cancelarReserva(Integer id) {
         if (!reservaRepository.existsById(id)) {
             throw new RuntimeException("Reserva no encontrada con ID: " + id);
+        }
+        if (estadiaRepository.existsByReservaId(id)) {
+            throw new RuntimeException(
+                    "No se puede cancelar la reserva porque ya tiene una estadía asociada (check-in realizado).");
         }
         reservaRepository.deleteById(id);
     }

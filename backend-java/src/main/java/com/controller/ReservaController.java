@@ -46,6 +46,9 @@ public class ReservaController {
             reservaService.cancelarReserva(id);
             return new ResponseEntity<>("Reserva cancelada exitosamente.", HttpStatus.OK);
         } catch (RuntimeException e) {
+            if (e.getMessage().contains("No se puede cancelar la reserva")) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            }
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Error interno al cancelar la reserva.", HttpStatus.INTERNAL_SERVER_ERROR);

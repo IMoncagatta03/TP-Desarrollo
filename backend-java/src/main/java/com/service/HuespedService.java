@@ -128,8 +128,26 @@ public class HuespedService {
         return huespedRepository.findById(numeroDocumento).orElse(null);
     }
 
+    @Autowired
+    private com.repository.EstadiaRepository estadiaRepository;
+
+    @Transactional(readOnly = true)
+    public boolean puedeEliminarHuesped(String numeroDocumento) {
+        long count = estadiaRepository.countByHuespedNumeroDocumento(numeroDocumento);
+        return count == 0;
+    }
+
     @Transactional
-    public void deleteHuesped(String docNum) {
+    public void deleteHuesped(String docNum) throws Exception {
+        if (!puedeEliminarHuesped(docNum)) {
+            throw new Exception(
+                    "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad.");
+        }
+        // Also delete associated address to avoid FK violations (if cascade not set)
+        Huesped h = huespedRepository.findById(docNum).orElse(null);
+        if (h != null && h.getDireccion() != null) {
+            direccionRepository.delete(h.getDireccion());
+        }
         huespedRepository.deleteById(docNum);
     }
 }

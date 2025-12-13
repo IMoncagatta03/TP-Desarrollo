@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PersonaFisicaRepository extends JpaRepository<PersonaFisica, Integer> {
+    java.util.Optional<PersonaFisica> findByCuit(String cuit);
 }

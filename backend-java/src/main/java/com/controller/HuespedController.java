@@ -32,6 +32,19 @@ public class HuespedController {
         }
     }
 
+    @PutMapping("/{numeroDocumento}")
+    public ResponseEntity<?> actualizarHuesped(@PathVariable String numeroDocumento,
+            @Valid @RequestBody Huesped huesped) {
+        try {
+            // Reusing logic: Update implies force=true for existing doc
+            // If they are changing ID, oldNumeroDocumento handles it
+            Huesped actualizado = huespedService.crearHuesped(huesped, true, numeroDocumento);
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping
     public List<com.dto.HuespedDTO> listarHuespedesCapeados() {
         return huespedService.obtenerTodos();
@@ -58,12 +71,21 @@ public class HuespedController {
         }
     }
 
+    @GetMapping("/{numeroDocumento}/puede-eliminar")
+    public ResponseEntity<?> validarEliminacion(@PathVariable String numeroDocumento) {
+        boolean puede = huespedService.puedeEliminarHuesped(numeroDocumento);
+        return new ResponseEntity<>(java.util.Collections.singletonMap("puedeEliminar", puede), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{numeroDocumento}")
     public ResponseEntity<?> eliminarHuesped(@PathVariable String numeroDocumento) {
         try {
             huespedService.deleteHuesped(numeroDocumento);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            if (e.getMessage().contains("no puede ser eliminado")) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            }
             return new ResponseEntity<>("No se pudo eliminar el huésped", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, UserPlus, Search, Bed, CalendarCheck, UserCog, LogOut, Hotel, DoorOpen, FileText } from 'lucide-react';
+import { Home, UserPlus, Search, Bed, CalendarCheck, UserCog, LogOut, Hotel, DoorOpen, FileText, UserMinus } from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -20,6 +20,7 @@ export default function Sidebar() {
         { href: '/', icon: Home, label: 'Inicio' },
         { href: '/huespedes/nuevo', icon: UserPlus, label: 'Dar Alta Huésped' },
         { href: '/huespedes/buscar', icon: Search, label: 'Buscar Huésped' },
+        { href: '/huespedes/buscar?action=delete', icon: UserMinus, label: 'Dar Baja Huésped' },
         { href: '/habitaciones', icon: Bed, label: 'Estado Habitaciones' },
         { href: '/reservas', icon: CalendarCheck, label: 'Reservar Habitación' },
         { href: '/reservas/cancelar', icon: LogOut, label: 'Cancelar Reserva' },

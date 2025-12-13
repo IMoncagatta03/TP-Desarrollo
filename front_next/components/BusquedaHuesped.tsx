@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getApiBaseUrl, API_ROUTES } from '@/lib/api';
-import { Search, UserPlus, ArrowRight, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { Search, UserPlus, ArrowRight, ChevronUp, ChevronDown, ChevronsUpDown, Trash2 } from 'lucide-react';
 
 interface Huesped {
     nombres: string;
@@ -27,6 +27,9 @@ export interface BusquedaHuespedProps {
 }
 
 export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel, excludeDocs = [] }: BusquedaHuespedProps) {
+    const searchParams = useSearchParams();
+    const mode = searchParams.get('action'); // 'delete' or null
+
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [tipoDoc, setTipoDoc] = useState('');
@@ -36,6 +39,10 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
     const [error, setError] = useState('');
     const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+
+    const [deleteTarget, setDeleteTarget] = useState<Huesped | null>(null);
+    const [modalState, setModalState] = useState<'NONE' | 'CONFIRM' | 'ALERT'>('NONE');
+    const [deleting, setDeleting] = useState(false);
 
     const handleSort = (key: SortKey) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -49,23 +56,17 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
         .filter(h => !excludeDocs.includes(h.numeroDocumento))
         .sort((a, b) => {
             if (!sortConfig.key) return 0;
-
             const aValue = a[sortConfig.key];
             const bValue = b[sortConfig.key];
-
-            if (aValue < bValue) {
-                return sortConfig.direction === 'asc' ? -1 : 1;
-            }
-            if (aValue > bValue) {
-                return sortConfig.direction === 'asc' ? 1 : -1;
-            }
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
 
     const router = useRouter();
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         setLoading(true);
         setError('');
         setResultados([]);
@@ -84,11 +85,9 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
 
             if (response.ok) {
                 let data = await response.json();
-
                 if (excludeDocs && excludeDocs.length > 0) {
                     data = data.filter((h: Huesped) => !excludeDocs.includes(h.numeroDocumento));
                 }
-
                 setResultados(data);
             } else {
                 setError('Error al buscar datos');
@@ -111,11 +110,60 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
         }
     };
 
+    const initiateDelete = async (huesped: Huesped, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        try {
+            const res = await fetch(`${getApiBaseUrl()}${API_ROUTES.HUESPEDES}/${huesped.numeroDocumento}/puede-eliminar`);
+            if (res.ok) {
+                const data = await res.json();
+                setDeleteTarget(huesped);
+                setModalState(data.puedeEliminar ? 'CONFIRM' : 'ALERT');
+            } else {
+                alert('Error al verificar estado del huésped');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión al verificar');
+        }
+    };
+
+    const performDelete = async () => {
+        if (!deleteTarget) return;
+        setDeleting(true);
+        try {
+            const res = await fetch(`${getApiBaseUrl()}${API_ROUTES.HUESPEDES}/${deleteTarget.numeroDocumento}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                setModalState('NONE');
+                setDeleteTarget(null);
+                setSelectedDocs([]); // Clear selection after delete
+                handleSearch();
+            } else {
+                alert('Error al eliminar huésped');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión al eliminar');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     const handleNext = () => {
-        if (isMultiple && selectedDocs.length === 0) {
+        if (selectedDocs.length === 0 && !isMultiple) return;
+        if (isMultiple && selectedDocs.length === 0) return;
+
+        // DELETE MODE FLOW
+        if (mode === 'delete') {
+            const selectedGuest = resultados.find(h => h.numeroDocumento === selectedDocs[0]);
+            if (selectedGuest) {
+                initiateDelete(selectedGuest);
+            }
             return;
         }
 
+        // DEFAULT FLOW
         if (onSelect) {
             const selected = resultados.filter(h => selectedDocs.includes(h.numeroDocumento));
             onSelect(selected);
@@ -142,8 +190,10 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
     };
 
     return (
-        <div className="container mx-auto p-5 h-full flex flex-col">
-            <h2 className="text-[#0056b3] text-2xl font-bold mb-6 border-b-2 border-[#0056b3] pb-2">Buscar Huésped</h2>
+        <div className="container mx-auto p-5 h-full flex flex-col relative">
+            <h2 className={`text-2xl font-bold mb-6 border-b-2 pb-2 ${mode === 'delete' ? 'text-red-600 border-red-600' : 'text-[#0056b3] border-[#0056b3]'}`}>
+                {mode === 'delete' ? 'Dar Baja Huésped' : 'Buscar Huésped'}
+            </h2>
 
             <div className="flex gap-10 h-full overflow-hidden">
                 {/* Columna de busqueda */}
@@ -192,72 +242,41 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                             <thead>
                                 <tr>
                                     <th className="w-[50px] text-center">Seleccionar</th>
-                                    <th
-                                        className="cursor-pointer hover:bg-gray-100 group"
-                                        onClick={() => handleSort('nombres')}
-                                    >
+                                    <th className="cursor-pointer hover:bg-gray-100 group" onClick={() => handleSort('nombres')}>
                                         <div className="flex items-center justify-between">
                                             Nombre/s
-                                            {sortConfig.key === 'nombres' ? (
-                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                                            ) : (
-                                                <ChevronsUpDown size={16} className="text-gray-400" />
-                                            )}
+                                            {sortConfig.key === 'nombres' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
-                                    <th
-                                        className="cursor-pointer hover:bg-gray-100 group"
-                                        onClick={() => handleSort('apellido')}
-                                    >
+                                    <th className="cursor-pointer hover:bg-gray-100 group" onClick={() => handleSort('apellido')}>
                                         <div className="flex items-center justify-between">
                                             Apellido
-                                            {sortConfig.key === 'apellido' ? (
-                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                                            ) : (
-                                                <ChevronsUpDown size={16} className="text-gray-400" />
-                                            )}
+                                            {sortConfig.key === 'apellido' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
-                                    <th
-                                        className="cursor-pointer hover:bg-gray-100 group"
-                                        onClick={() => handleSort('tipoDocumento')}
-                                    >
+                                    <th className="cursor-pointer hover:bg-gray-100 group" onClick={() => handleSort('tipoDocumento')}>
                                         <div className="flex items-center justify-between">
-                                            Tipo Documento
-                                            {sortConfig.key === 'tipoDocumento' ? (
-                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                                            ) : (
-                                                <ChevronsUpDown size={16} className="text-gray-400" />
-                                            )}
+                                            Tipo Doc
+                                            {sortConfig.key === 'tipoDocumento' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
-                                    <th
-                                        className="cursor-pointer hover:bg-gray-100 group"
-                                        onClick={() => handleSort('numeroDocumento')}
-                                    >
+                                    <th className="cursor-pointer hover:bg-gray-100 group" onClick={() => handleSort('numeroDocumento')}>
                                         <div className="flex items-center justify-between">
-                                            Nro. Documento
-                                            {sortConfig.key === 'numeroDocumento' ? (
-                                                sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                                            ) : (
-                                                <ChevronsUpDown size={16} className="text-gray-400" />
-                                            )}
+                                            Nro. Doc
+                                            {sortConfig.key === 'numeroDocumento' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
+                                    {/* Hide Actions in delete mode to reduce clutter, or keep them? User wants 'Next' to delete. */}
+                                    {/* Show Actions only if in delete mode (and not in selection mode) */}
+                                    {!onSelect && mode === 'delete' && <th className="w-[80px] text-center">Acciones</th>}
                                 </tr>
                             </thead>
                             <tbody>
-                                {loading && (
-                                    <tr><td colSpan={5} className="text-center p-4">Buscando...</td></tr>
-                                )}
-
-                                {!loading && error && (
-                                    <tr><td colSpan={5} className="text-center p-4 text-red-500">{error}</td></tr>
-                                )}
-
+                                {loading && (<tr><td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4">Buscando...</td></tr>)}
+                                {!loading && error && (<tr><td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4 text-red-500">{error}</td></tr>)}
                                 {!loading && !error && sortedResultados.length === 0 && (
                                     <tr>
-                                        <td colSpan={5} className="text-center p-4">
+                                        <td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4">
                                             <p className="mb-2">No se encontraron resultados.</p>
                                             <button onClick={() => router.push('/huespedes/nuevo')} className="btn-submit inline-flex items-center gap-2">
                                                 <UserPlus size={16} /> Dar de Alta
@@ -282,6 +301,17 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                                         <td>{h.apellido}</td>
                                         <td>{h.tipoDocumento}</td>
                                         <td>{h.numeroDocumento}</td>
+                                        {!onSelect && mode === 'delete' && (
+                                            <td className="text-center">
+                                                <button
+                                                    onClick={(e) => initiateDelete(h, e)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                                                    title="Dar de baja"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
@@ -297,12 +327,69 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                             }
                         }} className="btn-cancel">CANCELAR</button>
 
-                        <button type="button" onClick={handleNext} className="btn-submit bg-[#0056b3] flex items-center gap-2">
-                            {onSelect ? 'ACEPTAR' : 'SIGUIENTE'} <ArrowRight size={16} />
+                        <button
+                            type="button"
+                            onClick={handleNext}
+                            disabled={selectedDocs.length === 0 && mode === 'delete' && !onSelect}
+                            className={`btn-submit flex items-center gap-2 ${mode === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#0056b3]'}`}
+                        >
+                            {onSelect ? 'ACEPTAR' : (mode === 'delete' ? 'BORRAR' : 'SIGUIENTE')}
+                            {mode !== 'delete' && <ArrowRight size={16} />}
+                            {mode === 'delete' && <Trash2 size={16} />}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            {modalState === 'CONFIRM' && deleteTarget && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full animate-fade-in">
+                        <h3 className="text-xl font-bold mb-4 text-red-600">Confirmar Eliminación</h3>
+                        <p className="mb-6 text-gray-700">
+                            Los datos del huésped <strong>{deleteTarget.nombres} {deleteTarget.apellido}</strong>,
+                            {deleteTarget.tipoDocumento} {deleteTarget.numeroDocumento} serán eliminados del sistema.
+                        </p>
+                        <p className="mb-6 font-semibold text-center text-gray-800">PRESIONE "ELIMINAR" PARA CONTINUAR...</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setModalState('NONE')}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded font-medium"
+                            >
+                                CANCELAR
+                            </button>
+                            <button
+                                onClick={performDelete}
+                                disabled={deleting}
+                                className="px-4 py-2 bg-red-600 text-white rounded font-bold hover:bg-red-700 shadow-sm"
+                            >
+                                {deleting ? 'ELIMINANDO...' : 'ELIMINAR'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {modalState === 'ALERT' && deleteTarget && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full animate-fade-in">
+                        <h3 className="text-xl font-bold mb-4 text-[#0056b3]">Aviso</h3>
+                        <p className="mb-6 text-gray-700">
+                            El huésped <strong>{deleteTarget.nombres} {deleteTarget.apellido}</strong> no puede ser eliminado
+                            pues se ha alojado en el Hotel en alguna oportunidad.
+                        </p>
+                        <p className="mb-6 font-semibold text-center text-gray-800">PRESIONE CUALQUIER BOTÓN PARA CONTINUAR...</p>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => setModalState('NONE')}
+                                className="px-6 py-2 bg-[#0056b3] text-white rounded font-bold hover:bg-blue-700 shadow-sm"
+                            >
+                                ACEPTAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -22,4 +22,6 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
 
     @Query("SELECT e FROM Estadia e WHERE e.habitacion.numero = :numeroHabitacion AND e.estado = 'VIGENTE'")
     java.util.Optional<Estadia> findByHabitacionNumeroActiva(@Param("numeroHabitacion") String numeroHabitacion);
+
+    boolean existsByReservaId(Integer reservaId);
 }

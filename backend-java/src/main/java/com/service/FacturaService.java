@@ -88,8 +88,38 @@ public class FacturaService {
         return facturaRepository.save(factura);
     }
 
-    public com.model.PersonaJuridica buscarResponsablePorCuit(String cuit) {
-        return personaJuridicaRepository.findByCuit(cuit)
-                .orElseThrow(() -> new RuntimeException("Responsable no encontrado con CUIT: " + cuit));
+    @Autowired
+    private PersonaFisicaRepository personaFisicaRepository;
+
+    public Object buscarResponsablePorCuit(String cuit) {
+        // Try Juridica
+        var pj = personaJuridicaRepository.findByCuit(cuit);
+        if (pj.isPresent()) {
+            return pj.get();
+        }
+
+        // Try Fisica
+        var pf = personaFisicaRepository.findByCuit(cuit);
+        if (pf.isPresent()) {
+            return mapPersonaFisicaToDto(pf.get());
+        }
+
+        throw new RuntimeException("Responsable no encontrado con CUIT: " + cuit);
+    }
+
+    private java.util.Map<String, Object> mapPersonaFisicaToDto(PersonaFisica pf) {
+        java.util.Map<String, Object> map = new java.util.HashMap<>();
+        map.put("id", pf.getId());
+        if (pf.getRazonSocial() != null && !pf.getRazonSocial().isEmpty()) {
+            map.put("razonSocial", pf.getRazonSocial());
+        } else if (pf.getHuesped() != null) {
+            String nombreCompleto = pf.getHuesped().getApellido() + ", " + pf.getHuesped().getNombres();
+            map.put("razonSocial", nombreCompleto);
+        }
+
+        if (pf.getHuesped() != null) {
+            map.put("direccion", pf.getHuesped().getDireccion());
+        }
+        return map;
     }
 }
