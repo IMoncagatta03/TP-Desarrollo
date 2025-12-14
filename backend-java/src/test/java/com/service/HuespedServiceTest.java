@@ -1,5 +1,6 @@
 package com.service;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,6 +15,7 @@ import com.repository.EstadiaRepository;
 import com.repository.DireccionRepository;
 import com.model.Huesped;
 
+import java.util.List;
 import java.util.Optional;
 
 public class HuespedServiceTest {
@@ -78,4 +80,67 @@ public class HuespedServiceTest {
 
         assertTrue(exception.getMessage().contains("no puede ser eliminado"));
     }
+    @Test
+    public void testCrearHuesped_Nuevo_Success() throws Exception {
+        Huesped h = new Huesped();
+        h.setNumeroDocumento("123");
+        h.setApellido("Perez");
+
+        when(huespedRepository.existsById("123")).thenReturn(false);
+        when(huespedRepository.save(h)).thenReturn(h);
+
+        Huesped result = huespedService.crearHuesped(h, false, null);
+
+        assertNotNull(result);
+        verify(huespedRepository, times(1)).save(h);
+    }
+
+    @Test
+    public void testCrearHuesped_Duplicado_SinForce() {
+        Huesped h = new Huesped();
+        h.setNumeroDocumento("123");
+
+        when(huespedRepository.existsById("123")).thenReturn(true);
+
+        Exception ex = assertThrows(Exception.class, () -> {
+            huespedService.crearHuesped(h, false, null);
+        });
+
+        assertTrue(ex.getMessage().contains("ya existen"));
+    }
+    @Test
+    public void testCrearHuesped_Existente_ForceTrue() throws Exception {
+        Huesped existente = new Huesped();
+        existente.setNumeroDocumento("123");
+        existente.setApellido("Viejo");
+
+        Huesped nuevo = new Huesped();
+        nuevo.setNumeroDocumento("123");
+        nuevo.setApellido("Nuevo");
+
+        when(huespedRepository.existsById("123")).thenReturn(true);
+        when(huespedRepository.findById("123")).thenReturn(Optional.of(existente));
+        when(huespedRepository.save(any(Huesped.class))).thenReturn(existente);
+
+        Huesped result = huespedService.crearHuesped(nuevo, true, null);
+
+        assertEquals("Nuevo", result.getApellido());
+        verify(huespedRepository).save(existente);
+    }
+    @Test
+    public void testObtenerTodos() {
+        Huesped h = new Huesped();
+        h.setNombres("Juan");
+        h.setApellido("Perez");
+        h.setNumeroDocumento("123");
+
+        when(huespedRepository.findAll()).thenReturn(List.of(h));
+
+        var result = huespedService.obtenerTodos();
+
+        assertEquals(1, result.size());
+        assertEquals("Juan", result.get(0).getNombres());
+    }
+
+
 }
