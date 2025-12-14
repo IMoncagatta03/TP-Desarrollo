@@ -36,8 +36,7 @@ public class HuespedController {
     public ResponseEntity<?> actualizarHuesped(@PathVariable String numeroDocumento,
             @Valid @RequestBody Huesped huesped) {
         try {
-            // Reusing logic: Update implies force=true for existing doc
-            // If they are changing ID, oldNumeroDocumento handles it
+           
             Huesped actualizado = huespedService.crearHuesped(huesped, true, numeroDocumento);
             return new ResponseEntity<>(actualizado, HttpStatus.OK);
         } catch (Exception e) {

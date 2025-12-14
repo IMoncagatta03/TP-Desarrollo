@@ -391,13 +391,13 @@ button {
     font-size: 15px;
 }
 
-/* Room Status View Styles */
+
 .status-view-container {
     display: flex;
     gap: 20px;
     margin-top: 20px;
     height: 500px;
-    /* Fixed height for scroll */
+    
 }
 
 .grid-container {
@@ -443,28 +443,28 @@ button {
     font-weight: bold;
 }
 
-/* Status Colors */
+
 .status-libre {
     background-color: #28a745;
-    /* Green */
+   
     color: white;
 }
 
 .status-ocupado {
     background-color: #dc3545;
-    /* Red */
+    
     color: white;
 }
 
 .status-reservado {
     background-color: #ffc107;
-    /* Yellow/Orange */
+    
     color: black;
 }
 
 .status-pago-pendiente {
     background-color: #007bff;
-    /* Blue */
+    
     color: white;
 }
 
@@ -493,7 +493,7 @@ button {
     cursor: pointer;
 }
 
-/* LOGIN STYLES */
+
 .login-container {
     position: fixed;
     top: 0;
@@ -546,7 +546,7 @@ button {
 
 .input-icon-wrapper input {
     padding-left: 40px;
-    /* Space for icon */
+   
     height: 45px;
     font-size: 1rem;
 }
@@ -567,10 +567,10 @@ button {
     text-transform: none;
 }
 
-/* --- SELECCION GRILLA --- */
+
 .status-selected {
     background-color: #3498db !important;
-    /* Azul selección */
+    
     color: white !important;
     cursor: pointer;
 }
@@ -590,10 +590,10 @@ button {
 
 .status-libre:hover {
     background-color: #e0f7fa;
-    /* Hover suave */
+    
 }
 
-/* Modal Reserva */
+
 #reserva-detalles p {
     margin: 5px 0;
     font-size: 1.1em;

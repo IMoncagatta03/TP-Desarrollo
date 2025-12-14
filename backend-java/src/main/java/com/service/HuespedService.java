@@ -143,7 +143,7 @@ public class HuespedService {
             throw new Exception(
                     "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad.");
         }
-        // Also delete associated address to avoid FK violations (if cascade not set)
+        
         Huesped h = huespedRepository.findById(docNum).orElse(null);
         if (h != null && h.getDireccion() != null) {
             direccionRepository.delete(h.getDireccion());

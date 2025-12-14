@@ -28,7 +28,7 @@ export interface BusquedaHuespedProps {
 
 export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel, excludeDocs = [] }: BusquedaHuespedProps) {
     const searchParams = useSearchParams();
-    const mode = searchParams.get('action'); // 'delete' or null
+    const mode = searchParams.get('action'); 
 
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
@@ -137,7 +137,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
             if (res.ok) {
                 setModalState('NONE');
                 setDeleteTarget(null);
-                setSelectedDocs([]); // Clear selection after delete
+                setSelectedDocs([]); 
                 handleSearch();
             } else {
                 alert('Error al eliminar huésped');
@@ -154,7 +154,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
         if (selectedDocs.length === 0 && !isMultiple) return;
         if (isMultiple && selectedDocs.length === 0) return;
 
-        // DELETE MODE FLOW
+        
         if (mode === 'delete') {
             const selectedGuest = resultados.find(h => h.numeroDocumento === selectedDocs[0]);
             if (selectedGuest) {
@@ -163,7 +163,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
             return;
         }
 
-        // DEFAULT FLOW
+       
         if (onSelect) {
             const selected = resultados.filter(h => selectedDocs.includes(h.numeroDocumento));
             onSelect(selected);
@@ -266,8 +266,8 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                                             {sortConfig.key === 'numeroDocumento' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
-                                    {/* Hide Actions in delete mode to reduce clutter, or keep them? User wants 'Next' to delete. */}
-                                    {/* Show Actions only if in delete mode (and not in selection mode) */}
+                                    
+                                    
                                     {!onSelect && mode === 'delete' && <th className="w-[80px] text-center">Acciones</th>}
                                 </tr>
                             </thead>
@@ -341,7 +341,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                 </div>
             </div>
 
-            {/* Modals */}
+           
             {modalState === 'CONFIRM' && deleteTarget && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full animate-fade-in">

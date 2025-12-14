@@ -23,7 +23,7 @@ body {
   overflow: hidden;
 }
 
-/* Layout */
+
 .app-layout {
   display: flex;
   height: 100vh;
@@ -39,7 +39,7 @@ body {
   flex-direction: column;
 }
 
-/* Common Components */
+
 .btn-submit {
   background-color: var(--success-color);
   color: white;
@@ -98,7 +98,7 @@ body {
   background-color: #fff8f8;
 }
 
-/* Table Styles */
+
 .table-responsive {
   flex: 1;
   min-height: 0;
@@ -135,7 +135,7 @@ body {
   background-color: #f9f9f9;
 }
 
-/* Status Colors */
+
 .status-libre {
   background-color: var(--success-color);
   color: white;

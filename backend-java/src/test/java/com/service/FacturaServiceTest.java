@@ -44,7 +44,7 @@ public class FacturaServiceTest {
         Estadia estadia = new Estadia();
         estadia.setId(1);
         estadia.setFechaDesde(java.time.LocalDate.of(2023, 1, 1));
-        estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 5)); // 4 days
+        estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 5)); 
         Huesped h = new Huesped();
         h.setApellido("Main");
         estadia.setHuesped(h);
@@ -56,7 +56,7 @@ public class FacturaServiceTest {
         DetalleFacturacionDTO result = facturaService.obtenerDetalleFacturacion(habNum);
 
         assertNotNull(result);
-        assertEquals(200000.0, result.getMontoEstadia()); // 4 days * 50000
+        assertEquals(200000.0, result.getMontoEstadia()); 
     }
 
     @Test

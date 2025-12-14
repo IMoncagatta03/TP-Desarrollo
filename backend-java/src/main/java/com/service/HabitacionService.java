@@ -44,9 +44,9 @@ public class HabitacionService {
             LocalDate current = fechaDesde;
 
             while (!current.isAfter(fechaHasta)) {
-                String estado = EstadoHab.LIBRE.name(); // Default
+                String estado = EstadoHab.LIBRE.name(); 
 
-                // Check Estadia
+                // Checkear Estadia
                 for (Estadia est : estadias) {
                     if (est.getHabitacion().getNumero().equals(hab.getNumero()) &&
                             !current.isBefore(est.getFechaDesde()) &&

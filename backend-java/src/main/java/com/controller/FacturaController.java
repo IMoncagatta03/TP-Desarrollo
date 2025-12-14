@@ -34,7 +34,7 @@ public class FacturaController {
         try {
             Integer idEstadia = (Integer) payload.get("idEstadia");
             String tipoFactura = (String) payload.get("tipoFactura");
-            // Simplified for prototype
+            
 
             Factura factura = facturaService.crearFactura(idEstadia, null, tipoFactura);
             return new ResponseEntity<>(factura, HttpStatus.CREATED);
@@ -46,13 +46,12 @@ public class FacturaController {
     @GetMapping("/responsable/{cuit}")
     public ResponseEntity<?> buscarResponsable(@PathVariable String cuit) {
         try {
-            // Sanitize CUIT (remove dashes/spaces)
+            
             String cleanCuit = cuit.replaceAll("[^0-9]", "");
 
             var responsable = facturaService.buscarResponsablePorCuit(cleanCuit);
 
-            // Map Entity to simple Map/DTO if needed, or return entity if JSON compatible
-            // PersonaJuridica should serialize fine.
+            
             return new ResponseEntity<>(responsable, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

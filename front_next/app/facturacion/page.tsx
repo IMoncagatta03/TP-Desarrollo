@@ -7,33 +7,31 @@ import { useRouter } from 'next/navigation';
 export default function FacturacionPage() {
     const router = useRouter();
 
-    // Steps: 1 = Search, 2 = Payers, 3 = Items/Final
+    
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
-    // Step 1: Search Inputs
+    
     const [habitacion, setHabitacion] = useState('');
     const [horaSalida, setHoraSalida] = useState('10:00');
     const habitacionRef = useRef<HTMLInputElement>(null);
     const horaRef = useRef<HTMLInputElement>(null);
 
-    // Data
+   
     const [detalle, setDetalle] = useState<any>(null);
     const [terceroData, setTerceroData] = useState<any>(null);
 
-    // Selection
+    
     const [selectedPayerType, setSelectedPayerType] = useState<'huesped' | 'tercero'>('huesped');
     const [selectedHuespedDoc, setSelectedHuespedDoc] = useState('');
     const [cuitTercero, setCuitTercero] = useState('');
 
-    // Checkboxes
+   
     const [checkEstadia, setCheckEstadia] = useState(true);
     const [selectedConsumos, setSelectedConsumos] = useState<number[]>([]);
 
-    // ----------------------------------------------------
-    // FLOW 1: Search
-    // ----------------------------------------------------
+    
     const buscarHabitacion = async (e: React.FormEvent) => {
         e.preventDefault();
         const errors = [];
@@ -70,11 +68,9 @@ export default function FacturacionPage() {
         }
     };
 
-    // ----------------------------------------------------
-    // FLOW 2: Payer Selection
-    // ----------------------------------------------------
+    
     const handleHuespedSelect = (huesped: any) => {
-        // Age Check
+        
         const birth = new Date(huesped.fechaNacimiento);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
@@ -88,7 +84,7 @@ export default function FacturacionPage() {
         setSelectedHuespedDoc(huesped.numeroDocumento);
         setSelectedPayerType('huesped');
 
-        // Clear Third Party selection if exists
+       
         setTerceroData(null);
         setCuitTercero('');
     };
@@ -101,7 +97,7 @@ export default function FacturacionPage() {
             return;
         }
 
-        // Deselect guest when searching CUIT
+        
         setSelectedHuespedDoc('');
 
         setLoading(true);
@@ -123,19 +119,17 @@ export default function FacturacionPage() {
     };
 
     const aceptarTercero = () => {
-        // Already set in state, just visual confirmation or move to next step
+        
         setStep(3);
     };
 
     const cancelarTercero = () => {
         setTerceroData(null);
         setCuitTercero('');
-        // Optionally re-select default or leave empty
+        
     };
 
-    // ----------------------------------------------------
-    // FLOW 3: Creation
-    // ----------------------------------------------------
+    
     const toggleConsumo = (id: number) => {
         setSelectedConsumos(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
     };
@@ -153,11 +147,10 @@ export default function FacturacionPage() {
     const generarFactura = async () => {
         try {
             setLoading(true);
-            // Identify correct Payer ID (Mock Logic for 'tercero')
+            /
             let responsableId = null;
             if (selectedPayerType === 'huesped') {
-                // Find huesped ID logic would be here, usually passed in DTO. 
-                // For now relying on backend finding it or redundant check.
+                /
             } else {
                 responsableId = terceroData.id;
             }
@@ -170,7 +163,7 @@ export default function FacturacionPage() {
                     tipoFactura: 'B',
                     facturarEstadia: checkEstadia,
                     idsConsumos: selectedConsumos,
-                    // Add responsableId param to backend if needed
+                    
                 })
             });
 
@@ -187,9 +180,7 @@ export default function FacturacionPage() {
         }
     };
 
-    // ----------------------------------------------------
-    // RENDER
-    // ----------------------------------------------------
+    
     const renderPayerLabel = () => {
         if (selectedPayerType === 'tercero' && terceroData) {
             return `${terceroData.razonSocial} (CUIT: ${cuitTercero})`;

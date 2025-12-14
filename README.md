@@ -5,8 +5,10 @@ Sistema de gestión hotelera que permite administrar huéspedes, habitaciones, r
 Software desarrollado cumpliendo con arquitectura de capas, patrón DAO y principios SOLID.
 
 ### Integrantes del Grupo
-* [Nombres de los integrantes]
-
+* Ignacio Nicolás Moncagatta 
+* Facundo Marenoni
+* Lorenzo Imvinkelried
+* Stefano Nicolás Dellaferrera 
 ---
 
 ## Requisitos Previos
@@ -18,7 +20,7 @@ Software desarrollado cumpliendo con arquitectura de capas, patrón DAO y princi
 ---
 
 ## Base de Datos
-1. Crear una base de datos en PostgreSQL llamada `tp_desarrollo`.
+1. Crear una base de datos en PostgreSQL llamada `hotel_tp`.
 2. Ejecutar el script SQL ubicado en `database/schema.sql` para crear las tablas y datos iniciales.
 3. Configurar las credenciales en `backend-java/src/main/resources/application.properties` si son diferentes a `postgres/admin`.
 

@@ -12,7 +12,7 @@ const modalAdvertenciaMensaje = document.getElementById('modal-advertencia-mensa
 const btnModalCorregir = document.getElementById('btn-modal-corregir');
 const btnModalAceptar = document.getElementById('btn-modal-aceptar');
 
-// --- LOGIN LOGIC ---
+
 document.addEventListener('DOMContentLoaded', () => {
     const vistaLogin = document.getElementById('vista-login');
     const appPrincipal = document.getElementById('app-principal');
@@ -55,7 +55,7 @@ function logout() {
     }
 }
 
-// --- END LOGIN LOGIC ---
+
 
 const BACKEND_PORT = '8080';
 const API_BASE_URL = `http://${window.location.hostname}:${BACKEND_PORT}`;
@@ -500,7 +500,7 @@ async function buscarHuespedes() {
 
             listaHuespedes.forEach(h => {
                 const fila = document.createElement('tr');
-                // MODIFICACION: Checkbox con lógica de exclusión mutua (Radio behavior but toggleable)
+                // MODIFICACION: Checkbox con lógica de exclusión mutua 
                 fila.innerHTML = `
                     <td style="text-align:center;">
                         <input type="checkbox" class="select-huesped" value="${h.idHuesped}" onchange="seleccionarUnico(this)" onkeydown="seleccionarConEnter(event, this)">
@@ -558,14 +558,14 @@ btnModalCorregir.addEventListener('click', () => {
     modalAdvertencia.style.display = 'none';
     datosHuespedTemporal = null;
 
-    // Highlight fields
+    
     const tipoDocInput = document.getElementById('tipoDocumento');
     const numDocInput = document.getElementById('numeroDocumento');
 
     if (tipoDocInput) tipoDocInput.classList.add('input-error');
     if (numDocInput) numDocInput.classList.add('input-error');
 
-    // Focus
+    
     if (tipoDocInput) tipoDocInput.focus();
 });
 btnModalAceptar.addEventListener('click', () => {
@@ -611,7 +611,7 @@ if (btnLimpiarSalirEstado) {
     });
 }
 
-// Enter Key Support for Date Inputs
+
 const fechaDesdeInput = document.getElementById('estado-fecha-desde');
 const fechaHastaInput = document.getElementById('estado-fecha-hasta');
 
@@ -750,14 +750,13 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
         return;
     }
 
-    // Sort rooms by number (optional but good)
+    
     data.sort((a, b) => a.numero.localeCompare(b.numero));
 
-    // 1. Generate Header (Room IDs)
-    // First column is "Dia"
+    
     let headerRow = '<tr><th>Dia</th>';
     data.forEach(hab => {
-        // Add class for room type filtering
+        
         let camasInfo = '';
         if (hab.camas && hab.camas.length > 0) {
             camasInfo = `<br><span style="font-size: 0.8em; font-weight: normal;">${hab.camas.join(', ')}</span>`;
@@ -767,15 +766,15 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
     headerRow += '</tr>';
     thead.innerHTML = headerRow;
 
-    // 2. Generate Rows (Dates)
-    let current = new Date(fechaDesdeStr + 'T00:00:00'); // Append time to avoid timezone issues
+    
+    let current = new Date(fechaDesdeStr + 'T00:00:00');
     const end = new Date(fechaHastaStr + 'T00:00:00');
-    // Helper to format date as YYYY-MM-DD for key lookup
+    
     const formatDateKey = (date) => {
         return date.toISOString().split('T')[0];
     };
 
-    // Helper to format date for display
+    
     const formatDateDisplay = (date) => {
         return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
@@ -785,7 +784,7 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
         let rowHtml = `<tr><td>${formatDateDisplay(current)}</td>`;
 
         data.forEach(hab => {
-            const status = hab.estadosPorFecha[dateKey] || 'LIBRE'; // Default to LIBRE if missing
+            const status = hab.estadosPorFecha[dateKey] || 'LIBRE'; 
             let statusClass = '';
             let statusText = '';
 
@@ -811,7 +810,7 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
                     statusText = 'Libre';
             }
 
-            // Read-only cell (no onclick, no selection attributes)
+            
             rowHtml += `<td class="col-room cell-status ${statusClass}" 
                             data-tipo="${hab.tipo}" 
                             data-status="${status}">
@@ -824,7 +823,7 @@ function renderTablaEstado(data, fechaDesdeStr, fechaHastaStr) {
         current.setDate(current.getDate() + 1);
     }
 
-    aplicarFiltrosEstado(); // Re-apply filters after render
+    aplicarFiltrosEstado();
 }
 
 // --- LOGICA DE SELECCION Y RESERVA (MULTI-ROOM) ---
@@ -841,7 +840,7 @@ function handleCellClick(celda) {
         return;
     }
 
-    // Initialize if not exists
+    
     if (!selections[habitacion]) {
         selections[habitacion] = { start: null, end: null };
     }
@@ -849,20 +848,20 @@ function handleCellClick(celda) {
     const currentSel = selections[habitacion];
 
     if (!currentSel.start) {
-        // 1. First click: Start Date
+        
         currentSel.start = fecha;
         celda.classList.add('status-selected-start');
     } else if (!currentSel.end) {
-        // 2. Second click: End Date
+        
         if (fecha < currentSel.start) {
-            // If clicked before start, reset and set as new start
+            
             limpiarSeleccionHabitacion(habitacion);
             selections[habitacion] = { start: fecha, end: null };
             celda.classList.add('status-selected-start');
         } else {
-            // Validate range
+            
             if (validarRango(habitacion, currentSel.start, fecha)) {
-                // Remove start style from the first cell (it will get full style in marcarRango)
+                
                 const startCell = document.querySelector(`td[data-habitacion="${habitacion}"][data-fecha="${currentSel.start}"]`);
                 if (startCell) startCell.classList.remove('status-selected-start');
 
@@ -874,7 +873,7 @@ function handleCellClick(celda) {
             }
         }
     } else {
-        // 3. Third click: Deselect room
+        
         limpiarSeleccionHabitacion(habitacion);
     }
 
@@ -883,7 +882,7 @@ function handleCellClick(celda) {
 
 function limpiarSeleccionHabitacion(habitacion) {
     delete selections[habitacion];
-    // Remove class from all cells of this room
+    
     const celdas = document.querySelectorAll(`td[data-habitacion="${habitacion}"]`);
     celdas.forEach(c => {
         c.classList.remove('status-selected');
@@ -944,7 +943,7 @@ function actualizarBotonConfirmar() {
         btn.className = 'btn-submit';
         btn.textContent = 'CONFIRMAR SELECCIÓN';
         btn.style.marginTop = '10px';
-        // btn.onclick = abrirModalReserva; // This will be handled by event listener below
+        
         const container = document.querySelector('.action-buttons-container');
         container.insertBefore(btn, container.firstChild);
     }
@@ -976,8 +975,7 @@ function mostrarModalVerificacion() {
     Object.keys(selections).forEach(habNum => {
         const sel = selections[habNum];
         if (sel.start && sel.end) {
-            // Get Room Type (hacky, from DOM)
-            // Better: find a cell for this room
+           
             const anyCell = document.querySelector(`td[data-habitacion="${habNum}"]`);
             const tipo = anyCell ? anyCell.dataset.tipo : 'Desconocido';
 
@@ -1015,7 +1013,7 @@ if (btnAceptarReserva) {
     btnAceptarReserva.addEventListener('click', () => {
         modalVerificacion.style.display = 'none';
         document.getElementById('modal-reserva').style.display = 'flex';
-        // Focus on first field
+        /
         setTimeout(() => document.getElementById('reserva-apellido').focus(), 100);
     });
 }
@@ -1105,7 +1103,7 @@ if (formReserva) {
         return esValido;
     }
 
-    // Uppercase enforcement y limpieza de errores al escribir
+   
     const inputs = formReserva.querySelectorAll('input[type="text"]');
     inputs.forEach(input => {
         input.addEventListener('input', () => {
@@ -1166,7 +1164,7 @@ if (formReserva) {
                 formReserva.reset();
                 limpiarErroresReserva(); // Limpiar errores visuales también
                 limpiarSeleccion();
-                buscarHabitacionesParaReserva(); // Refresh grid
+                buscarHabitacionesParaReserva(); 
             } else {
                 const msg = await response.text();
                 alert("Error al crear reserva: " + msg);
@@ -1179,20 +1177,19 @@ if (formReserva) {
 }
 
 function aplicarFiltrosEstado() {
-    // 1. Get Filter Values
+    
     const checkedTypes = Array.from(document.querySelectorAll('.filter-type:checked')).map(cb => cb.value);
     const checkedStatuses = Array.from(document.querySelectorAll('.filter-status:checked')).map(cb => cb.value);
 
-    // 2. Identify Columns (Headers)
+    
     const roomHeaders = Array.from(document.querySelectorAll('#status-table-head th.col-room'));
     const tbody = document.getElementById('status-table-body');
     const rows = Array.from(tbody.querySelectorAll('tr'));
 
-    // 3. Determine Visibility per Column
-    // Initialize all to true
+    
     const colVisibility = new Array(roomHeaders.length).fill(true);
 
-    // 3a. Check Room Type
+    
     roomHeaders.forEach((th, index) => {
         const tipo = th.getAttribute('data-tipo');
         if (!checkedTypes.includes(tipo)) {
@@ -1200,24 +1197,14 @@ function aplicarFiltrosEstado() {
         }
     });
 
-    // 3b. Check Status (Strict: If ANY cell in the column has an unchecked status, hide the WHOLE column)
-    // Actually, for status filter, it's usually "Show me rooms that are FREE now" or "Show me rooms that are OCCUPIED".
-    // But in a timeline view, a room changes status.
-    // If I uncheck "OCUPADO", should I hide rooms that have AT LEAST one occupied day in range?
-    // Or just hide the occupied cells (which makes no sense in a grid)?
-    // Let's assume: Hide rooms that have ANY status NOT in the checked list within the visible range?
-    // No, that's too restrictive.
-    // Let's stick to: Filter by Type only for now, as Status filter in a timeline is ambiguous.
-    // OR: Just hide the columns that don't match the type. Status filter might be for "Current Status" which we don't easily know here without checking today's date.
-    // Let's implement Type filter correctly and ignore Status filter for column visibility to avoid confusion, or implement it if the user insists.
-    // The previous code tried to hide columns. Let's stick to Type filter for column hiding.
+   
 
-    // Apply visibility to Headers
+    
     roomHeaders.forEach((th, index) => {
         th.style.display = colVisibility[index] ? '' : 'none';
     });
 
-    // Apply visibility to Cells
+    
     rows.forEach(row => {
         const cells = row.querySelectorAll('td.col-room');
         cells.forEach((cell, index) => {
@@ -1226,7 +1213,7 @@ function aplicarFiltrosEstado() {
     });
 }
 
-// --- RESERVAR HABITACIÓN LOGIC (CU04 - Interactive) ---
+// --- RESERVAR HABITACIÓN  ---
 
 const btnBuscarReserva = document.getElementById('btn-buscar-reserva');
 const btnLimpiarSalirReserva = document.getElementById('btn-limpiar-salir-reserva');
@@ -1305,7 +1292,7 @@ function renderTablaReserva(data, fechaDesdeStr, fechaHastaStr) {
 
     data.sort((a, b) => a.numero.localeCompare(b.numero));
 
-    // Header
+    
     let headerRow = '<tr><th>Dia</th>';
     data.forEach(hab => {
         let camasInfo = '';
@@ -1317,7 +1304,7 @@ function renderTablaReserva(data, fechaDesdeStr, fechaHastaStr) {
     headerRow += '</tr>';
     thead.innerHTML = headerRow;
 
-    // Rows
+    
     let current = new Date(fechaDesdeStr + 'T00:00:00');
     const end = new Date(fechaHastaStr + 'T00:00:00');
 
@@ -1355,7 +1342,7 @@ function renderTablaReserva(data, fechaDesdeStr, fechaHastaStr) {
                     statusText = 'Libre';
             }
 
-            // Interactive cell
+            
             rowHtml += `<td class="col-room cell-status ${statusClass}" 
                             data-fecha="${dateKey}" 
                             data-habitacion="${hab.numero}" 
