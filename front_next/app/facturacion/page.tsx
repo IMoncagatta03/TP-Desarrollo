@@ -147,10 +147,10 @@ export default function FacturacionPage() {
     const generarFactura = async () => {
         try {
             setLoading(true);
-            /
+            
             let responsableId = null;
             if (selectedPayerType === 'huesped') {
-                /
+                
             } else {
                 responsableId = terceroData.id;
             }

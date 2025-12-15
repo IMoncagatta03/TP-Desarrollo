@@ -1,5 +1,6 @@
 package com.config;
 
+import com.enums.TipoDoc;
 import com.model.*;
 import com.repository.*;
 import org.springframework.boot.CommandLineRunner;
@@ -37,8 +38,7 @@ public class DataLoader {
                     dir.setDireccionNumero("742");
                     dir.setCodigoPostal("1000");
 
-                   
-                    direccionRepository.save(dir);
+                    
 
                     pj.setDireccion(dir);
                     personaJuridicaRepository.save(pj);
@@ -48,24 +48,29 @@ public class DataLoader {
                 String docMock = "11111111";
                 String cuitMock = "20111111112";
 
-               
+                
                 Huesped h = huespedRepository.findById(docMock).orElse(null);
                 if (h == null) {
                     System.out.println("Cargando datos de prueba: Huesped Juan Perez");
                     h = new Huesped();
                     h.setNumeroDocumento(docMock);
-                    h.setTipoDocumento(com.enums.TipoDoc.DNI);
+                    h.setTipoDocumento(TipoDoc.DNI);
                     h.setApellido("Perez");
                     h.setNombres("Juan");
                     h.setFechaNacimiento(new Date());
+
+                    h.setCuit(cuitMock); 
+                    h.setPosicionIva(com.enums.PosIva.CONSUMIDOR_FINAL); 
+
                     h.setEmail("juan.perez@example.com");
                     h.setTelefono("1122334455");
                     h.setNacionalidad("Argentina");
                     h.setOcupacion("Empleado");
+
                     huespedRepository.save(h);
                 }
 
-               
+                
                 if (personaFisicaRepository.findByCuit(cuitMock).isEmpty()) {
                     System.out.println("Cargando datos de prueba: Persona Fisica Juan Perez");
                     PersonaFisica pf = new PersonaFisica();
@@ -78,7 +83,7 @@ public class DataLoader {
             } catch (Exception e) {
                 System.err.println("Error cargando datos de prueba (DataLoader): " + e.getMessage());
                 e.printStackTrace();
-               
+                
             }
         };
     }
