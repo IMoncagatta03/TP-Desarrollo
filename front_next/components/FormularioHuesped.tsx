@@ -56,7 +56,6 @@ export default function FormularioHuesped() {
     const [successMessage, setSuccessMessage] = useState('');
     const [warningMessage, setWarningMessage] = useState('');
     const [originalNumeroDocumento, setOriginalNumeroDocumento] = useState<string | null>(null);
-    const [deleteModal, setDeleteModal] = useState<{ show: boolean, type: 'BLOCK' | 'CONFIRM' | 'SUCCESS', message: React.ReactNode }>({ show: false, type: 'BLOCK', message: '' });
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -278,85 +277,10 @@ export default function FormularioHuesped() {
         setSuccessMessage('');
         setWarningMessage('');
         setServerError('');
+        setOriginalNumeroDocumento(null);
     };
 
-    const handleDelete = async () => {
-        if (!formData.numeroDocumento) return;
 
-        try {
-            // Verificar si tiene estadias
-            const checkUrl = `${getApiBaseUrl()}/estadias/check-huesped/${formData.numeroDocumento}`;
-            const checkResponse = await fetch(checkUrl);
-            const hasEstadias = await checkResponse.json();
-
-            if (hasEstadias) {
-                setDeleteModal({
-                    show: true,
-                    type: 'BLOCK',
-                    message: (
-                        <>
-                            El huesped {formData.nombres}, {formData.apellido}, {formData.numeroDocumento} no puede ser eliminado pues se ha alojado en el hotel en alguna oportunidad
-                            <br /><br />
-                            <div className="text-center font-bold">Presione cualquier tecla para continuar...</div>
-                        </>
-                    )
-                });
-            } else {
-                setDeleteModal({
-                    show: true,
-                    type: 'CONFIRM',
-                    message: `El huesped ${formData.nombres}, ${formData.apellido}, ${formData.numeroDocumento} será eliminado del sistema`
-                });
-            }
-        } catch (error) {
-            console.error(error);
-            setServerError('Error al verificar estadías.');
-        }
-    };
-
-    const handleConfirmDelete = async () => {
-        try {
-            const url = `${getApiBaseUrl()}${API_ROUTES.HUESPEDES}/${formData.numeroDocumento}`;
-            const response = await fetch(url, { method: 'DELETE' });
-
-            if (response.ok) {
-                setDeleteModal({
-                    show: true,
-                    type: 'SUCCESS',
-                    message: (
-                        <>
-                            Los datos de {formData.nombres}, {formData.apellido}, <br /> {formData.numeroDocumento} han sido eliminados del sistema
-                            <br /><br />
-                            <div className="font-bold">Presione una tecla para continuar...</div>
-                        </>
-                    )
-                });
-            } else {
-                setServerError('Error al eliminar el huésped.');
-                setDeleteModal({ show: false, type: 'BLOCK', message: '' });
-            }
-        } catch (error) {
-            console.error(error);
-            setServerError('Error de conexión al eliminar.');
-            setDeleteModal({ show: false, type: 'BLOCK', message: '' });
-        }
-    };
-
-    // Listener global para cerrar modales
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (!deleteModal.show) return;
-
-            if (deleteModal.type === 'BLOCK') {
-                setDeleteModal({ show: false, type: 'BLOCK', message: '' });
-            } else if (deleteModal.type === 'SUCCESS') {
-                router.push('/');
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [deleteModal, router]);
 
     const isModification = !!searchParams.get('numDoc');
 
@@ -395,33 +319,7 @@ export default function FormularioHuesped() {
                 </div>
             )}
 
-            {/* Modal de Borrado */}
-            {deleteModal.show && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
-                        <div className="text-lg mb-5 text-gray-800">
-                            {deleteModal.message}
-                        </div>
 
-                        {deleteModal.type === 'CONFIRM' && (
-                            <div className="flex justify-center gap-4 mt-4">
-                                <button
-                                    onClick={() => setDeleteModal({ show: false, type: 'BLOCK', message: '' })}
-                                    className="btn-cancel"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={handleConfirmDelete}
-                                    className="px-4 py-2 border border-[#dc3545] text-[#dc3545] rounded bg-transparent hover:bg-red-50 font-medium transition-colors cursor-pointer"
-                                >
-                                    Borrar
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
 
             <form onSubmit={(e) => handleSubmit(e)} noValidate>
                 <fieldset className="border border-gray-200 rounded p-3 mb-3">
@@ -557,16 +455,6 @@ export default function FormularioHuesped() {
 
                 <div className="flex justify-center gap-4 mt-4">
                     <button type="button" onClick={() => router.push('/')} className="btn-cancel">CANCELAR</button>
-
-                    {isModification && (
-                        <button
-                            type="button"
-                            onClick={handleDelete}
-                            className="px-4 py-2 border border-[#dc3545] text-[#dc3545] rounded bg-transparent hover:bg-red-50 font-medium transition-colors cursor-pointer"
-                        >
-                            Borrar
-                        </button>
-                    )}
 
                     <button type="submit" className="btn-submit">GUARDAR</button>
                 </div>

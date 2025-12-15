@@ -34,9 +34,10 @@ public class FacturaController {
         try {
             Integer idEstadia = (Integer) payload.get("idEstadia");
             String tipoFactura = (String) payload.get("tipoFactura");
-            
+            Boolean facturarEstadia = (Boolean) payload.get("facturarEstadia");
+            List<Integer> idsConsumos = (List<Integer>) payload.get("idsConsumos");
 
-            Factura factura = facturaService.crearFactura(idEstadia, null, tipoFactura);
+            Factura factura = facturaService.crearFactura(idEstadia, null, tipoFactura, facturarEstadia, idsConsumos);
             return new ResponseEntity<>(factura, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Error al crear factura: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -46,12 +47,11 @@ public class FacturaController {
     @GetMapping("/responsable/{cuit}")
     public ResponseEntity<?> buscarResponsable(@PathVariable String cuit) {
         try {
-            
+
             String cleanCuit = cuit.replaceAll("[^0-9]", "");
 
             var responsable = facturaService.buscarResponsablePorCuit(cleanCuit);
 
-            
             return new ResponseEntity<>(responsable, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

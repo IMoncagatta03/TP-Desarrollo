@@ -8,12 +8,25 @@ export default function Sidebar() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const isActive = (path: string) => {
+    const isActive = (href: string) => {
+        const [path, query] = href.split('?');
+        const itemParams = new URLSearchParams(query);
+
+        if (pathname !== path) return false;
+
         // Si estamos en /huespedes/nuevo pero hay un numDoc en los params, significa que estamos Modificando, no dando de alta
         if (path === '/huespedes/nuevo' && searchParams.get('numDoc')) {
             return false;
         }
-        return pathname === path;
+
+        // Diferenciar "Buscar" de "Dar Baja" usando el query param 'action'
+        if (path === '/huespedes/buscar') {
+            const currentAction = searchParams.get('action');
+            const itemAction = itemParams.get('action');
+            return currentAction === itemAction;
+        }
+
+        return true;
     };
 
     const menuItems = [

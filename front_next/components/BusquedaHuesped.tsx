@@ -28,7 +28,7 @@ export interface BusquedaHuespedProps {
 
 export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel, excludeDocs = [] }: BusquedaHuespedProps) {
     const searchParams = useSearchParams();
-    const mode = searchParams.get('action'); 
+    const mode = searchParams.get('action');
 
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
@@ -137,7 +137,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
             if (res.ok) {
                 setModalState('NONE');
                 setDeleteTarget(null);
-                setSelectedDocs([]); 
+                setSelectedDocs([]);
                 handleSearch();
             } else {
                 alert('Error al eliminar huésped');
@@ -154,7 +154,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
         if (selectedDocs.length === 0 && !isMultiple) return;
         if (isMultiple && selectedDocs.length === 0) return;
 
-        
+
         if (mode === 'delete') {
             const selectedGuest = resultados.find(h => h.numeroDocumento === selectedDocs[0]);
             if (selectedGuest) {
@@ -163,7 +163,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
             return;
         }
 
-       
+
         if (onSelect) {
             const selected = resultados.filter(h => selectedDocs.includes(h.numeroDocumento));
             onSelect(selected);
@@ -266,17 +266,16 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                                             {sortConfig.key === 'numeroDocumento' ? (sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />) : <ChevronsUpDown size={16} className="text-gray-400" />}
                                         </div>
                                     </th>
-                                    
-                                    
-                                    {!onSelect && mode === 'delete' && <th className="w-[80px] text-center">Acciones</th>}
+
+
                                 </tr>
                             </thead>
                             <tbody>
-                                {loading && (<tr><td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4">Buscando...</td></tr>)}
-                                {!loading && error && (<tr><td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4 text-red-500">{error}</td></tr>)}
+                                {loading && (<tr><td colSpan={5} className="text-center p-4">Buscando...</td></tr>)}
+                                {!loading && error && (<tr><td colSpan={5} className="text-center p-4 text-red-500">{error}</td></tr>)}
                                 {!loading && !error && sortedResultados.length === 0 && (
                                     <tr>
-                                        <td colSpan={onSelect || mode !== 'delete' ? 5 : 6} className="text-center p-4">
+                                        <td colSpan={5} className="text-center p-4">
                                             <p className="mb-2">No se encontraron resultados.</p>
                                             <button onClick={() => router.push('/huespedes/nuevo')} className="btn-submit inline-flex items-center gap-2">
                                                 <UserPlus size={16} /> Dar de Alta
@@ -301,17 +300,6 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                                         <td>{h.apellido}</td>
                                         <td>{h.tipoDocumento}</td>
                                         <td>{h.numeroDocumento}</td>
-                                        {!onSelect && mode === 'delete' && (
-                                            <td className="text-center">
-                                                <button
-                                                    onClick={(e) => initiateDelete(h, e)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                                                    title="Dar de baja"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </td>
-                                        )}
                                     </tr>
                                 ))}
                             </tbody>
@@ -341,7 +329,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                 </div>
             </div>
 
-           
+
             {modalState === 'CONFIRM' && deleteTarget && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full animate-fade-in">
@@ -378,7 +366,7 @@ export default function BusquedaHuesped({ onSelect, isMultiple = false, onCancel
                             El huésped <strong>{deleteTarget.nombres} {deleteTarget.apellido}</strong> no puede ser eliminado
                             pues se ha alojado en el Hotel en alguna oportunidad.
                         </p>
-                        <p className="mb-6 font-semibold text-center text-gray-800">PRESIONE CUALQUIER BOTÓN PARA CONTINUAR...</p>
+
                         <div className="flex justify-center">
                             <button
                                 onClick={() => setModalState('NONE')}

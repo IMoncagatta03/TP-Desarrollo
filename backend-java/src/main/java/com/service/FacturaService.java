@@ -33,44 +33,46 @@ public class FacturaService {
 
         List<Consumo> consumos = consumoRepository.findByEstadiaId(estadia.getId());
 
-        
-
         long dias = ChronoUnit.DAYS.between(estadia.getFechaDesde(), estadia.getFechaHasta());
         if (dias == 0)
             dias = 1;
 
-        Double montoEstadia = dias * 50000.0; //precio de ejemplo
+        Double montoEstadia = dias * 50000.0; // precio de ejemplo
         Double montoConsumos = consumos.stream().mapToDouble(c -> c.getPrecio() * c.getCantidad()).sum();
 
-       
         List<Huesped> ocupantes = estadia.getAcompanantes();
-        ocupantes.add(0, estadia.getHuesped()); 
+        ocupantes.add(0, estadia.getHuesped());
 
         return new DetalleFacturacionDTO(estadia, ocupantes, consumos, montoEstadia, montoConsumos);
     }
 
     @Transactional
-    public Factura crearFactura(Integer idEstadia, Integer idResponsable, String tipoFactura) {
+    public Factura crearFactura(Integer idEstadia, Integer idResponsable, String tipoFactura, boolean facturarEstadia,
+            List<Integer> idsConsumos) {
         Estadia estadia = estadiaRepository.findById(idEstadia)
                 .orElseThrow(() -> new RuntimeException("Estadía no encontrada"));
 
-        
+        // Filtrar consumos seleccionados
+        List<Consumo> todosConsumos = consumoRepository.findByEstadiaId(estadia.getId());
+        List<Consumo> consumosA_Facturar = todosConsumos.stream()
+                .filter(c -> idsConsumos != null && idsConsumos.contains(c.getId()))
+                .toList();
 
-        
-        List<Consumo> consumos = consumoRepository.findByEstadiaId(estadia.getId());
-        long dias = ChronoUnit.DAYS.between(estadia.getFechaDesde(), estadia.getFechaHasta());
-        if (dias == 0)
-            dias = 1;
-        Double montoEstadia = dias * 50000.0;
-        Double montoConsumos = consumos.stream().mapToDouble(c -> c.getPrecio() * c.getCantidad()).sum();
+        Double montoEstadia = 0.0;
+        if (facturarEstadia) {
+            long dias = ChronoUnit.DAYS.between(estadia.getFechaDesde(), estadia.getFechaHasta());
+            if (dias == 0)
+                dias = 1;
+            montoEstadia = dias * 50000.0;
+        }
+
+        Double montoConsumos = consumosA_Facturar.stream().mapToDouble(c -> c.getPrecio() * c.getCantidad()).sum();
 
         Factura factura = new Factura();
         factura.setEstadia(estadia);
         factura.setMontoTotal(montoEstadia + montoConsumos);
         factura.setTipoFactura(tipoFactura);
         factura.setEstadoFactura("PENDIENTE_PAGO");
-
-        
 
         return facturaRepository.save(factura);
     }
@@ -79,13 +81,12 @@ public class FacturaService {
     private PersonaFisicaRepository personaFisicaRepository;
 
     public Object buscarResponsablePorCuit(String cuit) {
-        
+
         var pj = personaJuridicaRepository.findByCuit(cuit);
         if (pj.isPresent()) {
             return pj.get();
         }
 
-        
         var pf = personaFisicaRepository.findByCuit(cuit);
         if (pf.isPresent()) {
             return mapPersonaFisicaToDto(pf.get());

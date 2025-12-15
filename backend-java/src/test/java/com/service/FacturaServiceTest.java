@@ -45,7 +45,7 @@ public class FacturaServiceTest {
         Estadia estadia = new Estadia();
         estadia.setId(1);
         estadia.setFechaDesde(java.time.LocalDate.of(2023, 1, 1));
-        estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 5)); 
+        estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 5));
         Huesped h = new Huesped();
         h.setApellido("Main");
         estadia.setHuesped(h);
@@ -57,7 +57,7 @@ public class FacturaServiceTest {
         DetalleFacturacionDTO result = facturaService.obtenerDetalleFacturacion(habNum);
 
         assertNotNull(result);
-        assertEquals(200000.0, result.getMontoEstadia()); 
+        assertEquals(200000.0, result.getMontoEstadia());
     }
 
     @Test
@@ -81,24 +81,25 @@ public class FacturaServiceTest {
             facturaService.buscarResponsablePorCuit(cuit);
         });
     }
+
     @Test
-public void testCrearFactura_Success() {
-    Estadia estadia = new Estadia();
-    estadia.setId(1);
-    estadia.setFechaDesde(java.time.LocalDate.of(2023, 1, 1));
-    estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 3)); // 2 días
+    public void testCrearFactura_Success() {
+        Estadia estadia = new Estadia();
+        estadia.setId(1);
+        estadia.setFechaDesde(java.time.LocalDate.of(2023, 1, 1));
+        estadia.setFechaHasta(java.time.LocalDate.of(2023, 1, 3)); // 2 días
 
-    when(estadiaRepository.findById(1)).thenReturn(Optional.of(estadia));
-    when(consumoRepository.findByEstadiaId(1)).thenReturn(new ArrayList<>());
+        when(estadiaRepository.findById(1)).thenReturn(Optional.of(estadia));
+        when(consumoRepository.findByEstadiaId(1)).thenReturn(new ArrayList<>());
 
-    when(facturaRepository.save(any(Factura.class)))
-            .thenAnswer(i -> i.getArgument(0));
+        when(facturaRepository.save(any(Factura.class)))
+                .thenAnswer(i -> i.getArgument(0));
 
-    Factura factura = facturaService.crearFactura(1, 1, "A");
+        Factura factura = facturaService.crearFactura(1, 1, "A", true, null);
 
-    assertNotNull(factura);
-    assertEquals(100000.0, factura.getMontoTotal()); // 2 * 50000
-    assertEquals("PENDIENTE_PAGO", factura.getEstadoFactura());
-}
+        assertNotNull(factura);
+        assertEquals(100000.0, factura.getMontoTotal()); // 2 * 50000
+        assertEquals("PENDIENTE_PAGO", factura.getEstadoFactura());
+    }
 
 }
