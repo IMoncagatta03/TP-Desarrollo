@@ -21,7 +21,7 @@ Software desarrollado cumpliendo con arquitectura de capas, patrón DAO y princi
 
 ## Base de Datos
 1. Crear una base de datos en PostgreSQL llamada `hotel_tp`.
-2. Ejecutar el script SQL ubicado en `database/schema.sql` para crear las tablas y datos iniciales.
+2. Ejecutar el script SQL ubicado en `database/schema.sql` para crear las tablas y datos iniciales (Habitaciones).
 3. Configurar las credenciales en `backend-java/src/main/resources/application.properties` si son diferentes a `postgres/admin`.
 
 ---
@@ -33,17 +33,25 @@ Software desarrollado cumpliendo con arquitectura de capas, patrón DAO y princi
 2. Ejecutar: `mvn spring-boot:run`
 3. La API estará disponible en `http://localhost:8080`.
 
+>**Nota sobre Seed Data (Datos de Prueba):**
+> Al iniciar la aplicación, el archivo `DataLoader.java` verificará automáticamente la base de datos. Si no detecta ciertos datos clave (Huéspedes, Reservas, Estadías ejemplo), los creará automáticamente. No es necesario ejecutar un comando adicional.
+
 ### Frontend (Next.js)
 1. Abrir terminal en `front_next`.
 2. Instalar dependencias: `npm install`
 3. Ejecutar: `npm run dev`
 4. Acceder al navegador en `http://localhost:3000`.
 
+### Ejecución de Pruebas Unitarias
+Para correr los tests automatizados del backend:
+1. Abrir terminal en `backend-java`.
+2. Ejecutar: `mvn test`
+
 ---
 
-## Endpoints de Ejemplo (API REST)
+## Endpoints Principales por Caso de Uso
 
-Los siguientes son ejemplos para probar los Casos de Uso principales usando `curl`.
+Los siguientes son ejemplos para probar los Casos de Uso principales usando `curl` o Postman.
 
 ### 1. Gestión de Huéspedes
 **GET** - Buscar Huéspedes
@@ -95,7 +103,22 @@ curl -X PUT http://localhost:8080/api/huespedes/99999999 \
 curl -X DELETE http://localhost:8080/api/huespedes/99999999
 ```
 
-### 2. Gestión de Estadías
+### 2. Gestión de Reservas
+**POST** - Crear Reserva
+```bash
+curl -X POST http://localhost:8080/reservas \
+-H "Content-Type: application/json" \
+-d '{
+    "fechaDesde": "2023-12-01",
+    "fechaHasta": "2023-12-10",
+    "habitacion": { "numero": "101" },
+    "nombres": "Juan",
+    "apellido": "Perez",
+    "telefono": "111222333"
+}'
+```
+
+### 3. Gestión de Estadías (Check-in/Check-out)
 **POST** - Crear Estadía (Check-in)
 ```bash
 curl -X POST http://localhost:8080/estadias \
@@ -120,7 +143,7 @@ curl -X PUT http://localhost:8080/estadias/1 \
 }'
 ```
 
-### 3. Facturación
+### 4. Facturación
 **GET** - Detalle a Facturar
 ```bash
 curl "http://localhost:8080/facturacion/detalle?habitacion=101"
