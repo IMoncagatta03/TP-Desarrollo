@@ -13,23 +13,22 @@ import java.util.Map;
 @ControllerAdvice
 public class ManejadorGlobalExcepciones {
 
-    // Intercepta cuando fallan las validaciones (@Valid)
+    // Handle @Valid validation failures
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        
-        // Recorre todos los campos que fallaron y extrae el mensaje
+
+        // Extract error messages for each field
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        
-        // Devuelve un JSON con los errores y estado 400 (Bad Request)
+
+        // Return 400 Bad Request with error details
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-   
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralException(Exception ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

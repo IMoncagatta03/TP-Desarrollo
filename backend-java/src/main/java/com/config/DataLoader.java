@@ -111,7 +111,7 @@ public class DataLoader {
                     d3.setPais("USA");
                     d3.setProvincia("NY");
                     d3.setLocalidad("New York");
-                    d3.setDireccionCalle("5th Avenue");
+                    d3.setDireccionCalle("Fifth Avenue");
                     d3.setDireccionNumero("10");
                     d3.setCodigoPostal("10001");
                     d3.setHuesped(h3);
@@ -122,46 +122,14 @@ public class DataLoader {
                 }
 
                 // --- 2. RESPONSABLES DE PAGO (Personas Fisicas) ---
-                // Chequeamos si la persona fisica para Juan Perez ya existe
-                // Como no hay acceso directo facil, verificamos si existe huesped "11111111" y
-                // si podemos buscar responsable
-                // Simplificacion: Asumimos que si no existe el responsable con id 1? No, ids
-                // son generados.
-                // Mejor: "Si el huesped Juan Perez existe, aseguramos que tenga responsable
-                // fisico".
-                // Pero ResponsableDePago es una tabla separada vinculada.
-                // Para no duplicar, chequeamos si existe PersonaFisica vinculada a ese huesped.
-                // Como PersonaFisica tiene UNIQUE constraint con Huesped?
-                // En el modelo PersonaFisica: @JoinColumn(..., unique = true) private Huesped
-                // huesped;
-                // Entonces si ya existe, fallaria al insertar.
-                // Pero mejor prevenir.
+                // Crear Responsable de Pago (Persona Fisica) para el huesped Juan Perez si no
+                // existe.
 
                 System.out.println("Verificando Responsables de Pago...");
 
                 Optional<Huesped> h1Opt = huespedRepository.findById("11111111");
+                // Verificar si ya existe un responsable fisico asignado para evitar duplicados.
                 if (h1Opt.isPresent()) {
-                    // Buscamos si ya existe una persona fisica para este huesped.
-                    // No tenemos repositorio directo `findByHuesped`.
-                    // Usamos un try-catch o count global si es seguro, pero aqui count global no
-                    // sirve.
-                    // Dado que es un script de prueba, podemos asumir: Si creamos al huesped
-                    // recien, creamos el responsable.
-                    // Si ya existia, quizas ya lo tenga.
-                    // Para ser robustos sin complicar queries:
-                    // Intentamos buscar si existe responsable fisico en general? No.
-
-                    // Estrategia: Solo crear si Huesped fue creado recien? No tenemos estado.
-                    // Estrategia: Count de PersonaFisica. Si es bajo, asumimos que falta.
-                    // O mejor:
-                    // Verificamos si existe en la base (huespedRepository.existsById) antes de
-                    // todo, si existia, asumimos que tiene.
-                    // Si no existia, y lo creamos, creamos el responsable.
-                    // Pero el codigo arriba corre siempre.
-
-                    // Solucion practica: Check count de PersonaFisica. Si es 0, creamos. Si > 0,
-                    // asumimos data ok.
-                    // El usuario dijo "veo a Juan Perez".
                     if (personaFisicaRepository.count() == 0) {
                         PersonaFisica pf1 = new PersonaFisica();
                         pf1.setTipoResponsable("FISICO");
@@ -251,22 +219,7 @@ public class DataLoader {
 
                     if (!reservasMaria.isEmpty() && maria != null) {
                         Reserva reservaMaria = reservasMaria.get(0);
-                        // Verificar que no tenga estadia ya
-                        // Como? asumimos que si count es 0, no tiene.
-                        // Pero si count > 0 (otras estadias), igual podria faltar esta.
-                        // Correcto seria buscar `estadiaRepository.findByReserva(reservaMaria)` pero no
-                        // tenemos ese metodo a mano (quizas).
-                        // Asumimos que si estamos en este bloque y Maria tiene reserva, le creamos la
-                        // estadia si no hay estadias globales?
-                        // No, mejor check simple:
-                        // Si creamos la reserva recien, seguro falta la estadia. Pero aqui estamos
-                        // desacoplados.
-
-                        // Simplificacion: Creamos solo si no hay ninguna estadia en el sistema, o nos
-                        // arriesgamos a duplicar (romperia unique constraint id_reserva).
-                        // Dado que id_reserva es unique en Estadia, si falla el save, no pasa nada (try
-                        // catch global).
-
+                        // Crear estadia si no existen estadias previas para evitar conflictos.
                         try {
                             Estadia e1 = new Estadia();
                             e1.setReserva(reservaMaria);

@@ -16,7 +16,7 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
     List<Estadia> findEstadiasEnRango(@Param("fechaDesde") LocalDate fechaDesde,
             @Param("fechaHasta") LocalDate fechaHasta);
 
-    // Contar estadias donde el huesped es responsable o acompañante
+    // Count stays where guest is responsible or accompanying
     @Query("SELECT COUNT(e) FROM Estadia e LEFT JOIN e.acompanantes a WHERE e.huesped.numeroDocumento = :docNum OR a.numeroDocumento = :docNum")
     long countByHuespedNumeroDocumento(@Param("docNum") String docNum);
 

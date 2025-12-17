@@ -37,7 +37,7 @@ public class FacturaService {
         if (dias == 0)
             dias = 1;
 
-        Double montoEstadia = dias * 50000.0; // precio de ejemplo
+        Double montoEstadia = dias * 50000.0; // Base rate per night
         Double montoConsumos = consumos.stream().mapToDouble(c -> c.getPrecio() * c.getCantidad()).sum();
 
         List<Huesped> ocupantes = estadia.getAcompanantes();
@@ -52,7 +52,7 @@ public class FacturaService {
         Estadia estadia = estadiaRepository.findById(idEstadia)
                 .orElseThrow(() -> new RuntimeException("Estadía no encontrada"));
 
-        // Filtrar consumos seleccionados
+        // Filter selected consumptions
         List<Consumo> todosConsumos = consumoRepository.findByEstadiaId(estadia.getId());
         List<Consumo> consumosA_Facturar = todosConsumos.stream()
                 .filter(c -> idsConsumos != null && idsConsumos.contains(c.getId()))

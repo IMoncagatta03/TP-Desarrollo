@@ -49,7 +49,7 @@ public class EstadiaService {
         estadia.setHabitacion(habitacion);
         estadia.setFechaDesde(dto.getFechaDesde());
         estadia.setFechaHasta(dto.getFechaHasta());
-        estadia.setEstado(EstadoEstadia.VIGENTE); // Asumiendo estado inicial VIGENTE
+        estadia.setEstado(EstadoEstadia.VIGENTE); // Initial state VIGENTE
 
         return estadiaRepository.save(estadia);
     }
@@ -70,7 +70,7 @@ public class EstadiaService {
             }
         }
 
-        // Solo se permite actualizar los huespedes para este caso de uso
+        // Limit update to guests only for this use case
         estadia.setHuesped(responsable);
         estadia.setAcompanantes(acompanantes);
 

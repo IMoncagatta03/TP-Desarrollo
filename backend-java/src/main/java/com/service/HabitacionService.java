@@ -44,15 +44,15 @@ public class HabitacionService {
             LocalDate current = fechaDesde;
 
             while (!current.isAfter(fechaHasta)) {
-                String estado = EstadoHab.LIBRE.name(); 
+                String estado = EstadoHab.LIBRE.name();
 
-                // Checkear Estadia
+                // Check Stay status
                 for (Estadia est : estadias) {
                     if (est.getHabitacion().getNumero().equals(hab.getNumero()) &&
                             !current.isBefore(est.getFechaDesde()) &&
                             !current.isAfter(est.getFechaHasta())) {
 
-                        // Usar el estado de la estadia
+                        // Use stay status
                         if (est.getEstado() != null) {
                             if (est.getEstado() == EstadoEstadia.VIGENTE
                                     || est.getEstado() == EstadoEstadia.PLAZO_EXTENDIDO) {
@@ -70,7 +70,7 @@ public class HabitacionService {
                     }
                 }
 
-                // Checkear reserva
+                // Check Reservation status
                 if (estado.equals(EstadoHab.LIBRE.name())) {
                     for (Reserva res : reservas) {
                         if (res.getHabitacion().getNumero().equals(hab.getNumero()) &&

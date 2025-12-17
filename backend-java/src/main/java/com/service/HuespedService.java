@@ -26,14 +26,14 @@ public class HuespedService {
     @Transactional
     public Huesped crearHuesped(Huesped huesped, boolean force, String oldNumeroDocumento) throws Exception {
 
-        // Chequea si el documento del huesped esta cambiando
+        // Check if document number is changing
         if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
                 && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
-            // Documento cambiado. Chequea si el huesped tiene estadias
+            // Check for existing stays before allowing document change
             if (estadiaService.huespedTieneEstadias(oldNumeroDocumento)) {
                 throw new Exception("Al menos una estadía asociada");
             }
-            // Si no tiene, creamos el nuevo y eliminamos el viejo
+            // If no stays exist, proceed to create new and remove old
         }
 
         boolean yaExiste = huespedRepository.existsById(huesped.getNumeroDocumento());
@@ -42,7 +42,7 @@ public class HuespedService {
             if (!force) {
                 throw new Exception("¡CUIDADO! El tipo y número de documento ya existen en el sistema");
             } else {
-                // Si force es true, actualizamos los datos del huesped existente
+                // Update existing guest data if force is true
                 Huesped huespedExistente = huespedRepository.findById(huesped.getNumeroDocumento()).orElse(null);
 
                 if (huespedExistente != null) {
@@ -85,8 +85,7 @@ public class HuespedService {
 
         Huesped nuevoHuesped = huespedRepository.save(huesped);
 
-        // Si guardamos exitosamente el nuevo y cambiamos el documento, eliminamos el
-        // viejo
+        // Remove old record if document number changed and save was successful
         if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
                 && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
             Huesped oldHuesped = huespedRepository.findById(oldNumeroDocumento).orElse(null);
@@ -143,7 +142,7 @@ public class HuespedService {
             throw new Exception(
                     "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad.");
         }
-        
+
         Huesped h = huespedRepository.findById(docNum).orElse(null);
         if (h != null && h.getDireccion() != null) {
             direccionRepository.delete(h.getDireccion());
