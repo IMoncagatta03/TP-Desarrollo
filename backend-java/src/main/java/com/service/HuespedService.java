@@ -26,14 +26,13 @@ public class HuespedService {
     @Transactional
     public Huesped crearHuesped(Huesped huesped, boolean force, String oldNumeroDocumento) throws Exception {
 
-        // Check if document number is changing
         if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
                 && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
-            // Check for existing stays before allowing document change
+
             if (estadiaService.huespedTieneEstadias(oldNumeroDocumento)) {
                 throw new Exception("Al menos una estadía asociada");
             }
-            // If no stays exist, proceed to create new and remove old
+
         }
 
         boolean yaExiste = huespedRepository.existsById(huesped.getNumeroDocumento());
@@ -42,7 +41,7 @@ public class HuespedService {
             if (!force) {
                 throw new Exception("¡CUIDADO! El tipo y número de documento ya existen en el sistema");
             } else {
-                // Update existing guest data if force is true
+
                 Huesped huespedExistente = huespedRepository.findById(huesped.getNumeroDocumento()).orElse(null);
 
                 if (huespedExistente != null) {
@@ -85,7 +84,6 @@ public class HuespedService {
 
         Huesped nuevoHuesped = huespedRepository.save(huesped);
 
-        // Remove old record if document number changed and save was successful
         if (oldNumeroDocumento != null && !oldNumeroDocumento.isEmpty()
                 && !oldNumeroDocumento.equals(huesped.getNumeroDocumento())) {
             Huesped oldHuesped = huespedRepository.findById(oldNumeroDocumento).orElse(null);
